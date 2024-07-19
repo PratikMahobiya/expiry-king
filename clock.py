@@ -1,4 +1,4 @@
-from tasks import PivotUpdate, BasicSetupJob, DeleteLogs, FyersSetup, NotifyUsers, CallPutAction, RecordUpdate, StayAwake, Minute1, Daily_P_L_Update
+from tasks import PivotUpdate, BasicSetupJob, DeleteLogs, FyersSetup, NotifyUsers, CallPutAction, RecordUpdate, StayAwake, ChainTracker, Daily_P_L_Update
 from apscheduler.schedulers.background import BackgroundScheduler
 import tzlocal
 
@@ -22,8 +22,8 @@ def start():
                 hour='9-15', second='*/40', timezone='Asia/Kolkata')
     sched.add_job(DeleteLogs, 'cron', day_of_week='mon-fri',
                 hour='9', minute='17', second='30', timezone='Asia/Kolkata')
-    sched.add_job(NotifyUsers, 'cron', day_of_week='mon-fri',
-                hour='15', minute='19', timezone='Asia/Kolkata')
+    # sched.add_job(NotifyUsers, 'cron', day_of_week='mon-fri',
+    #             hour='15', minute='19', timezone='Asia/Kolkata')
     sched.add_job(PivotUpdate, 'cron', day_of_week='mon-fri',
                 hour='9', minute='17', timezone='Asia/Kolkata')
     sched.add_job(RecordUpdate, 'cron', day_of_week='mon-fri',
@@ -32,7 +32,7 @@ def start():
                 hour='15', minute='35', timezone='Asia/Kolkata')
     sched.add_job(CallPutAction, 'cron', day_of_week='mon-fri',
                 hour='9-15', second='*/5', timezone='Asia/Kolkata')
-    sched.add_job(Minute1, 'cron', day_of_week='mon-fri',
+    sched.add_job(ChainTracker, 'cron', day_of_week='mon-fri',
                 hour='9-15', minute='*/1', timezone='Asia/Kolkata')
     sched.start()
     return True

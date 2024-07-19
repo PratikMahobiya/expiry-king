@@ -87,9 +87,9 @@ WSGI_APPLICATION = "expiry_king.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.parse("postgresql://expiry_king_xrie_user:ojB5nvjOdmlI6ubxEXTzVp1csuyCr4NH@dpg-cqb5h9aj1k6c73allb3g-a/expiry_king_xrie", conn_max_age=600),
+    "default": dj_database_url.parse("postgresql://expiry_king_user:ydOR55E4yvvNftTcWia6xhg6PBPDBGLE@dpg-cqd4hl3v2p9s73e7gqfg-a/expiry_king", conn_max_age=600),
 } if os.getenv("SERVER_DB", True) else {
-    "default": dj_database_url.parse("postgresql://expiry_king_xrie_user:ojB5nvjOdmlI6ubxEXTzVp1csuyCr4NH@dpg-cqb5h9aj1k6c73allb3g-a.virginia-postgres.render.com/expiry_king_xrie", conn_max_age=600),
+    "default": dj_database_url.parse("postgresql://expiry_king_user:ydOR55E4yvvNftTcWia6xhg6PBPDBGLE@dpg-cqd4hl3v2p9s73e7gqfg-a.virginia-postgres.render.com/expiry_king", conn_max_age=600),
 }
 
 # DATABASES = {

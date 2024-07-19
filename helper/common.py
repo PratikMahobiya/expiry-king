@@ -46,6 +46,7 @@ def Entry_Put(data_frame, index_obj):
 
 
 def Check_Entry(now, configuration_obj, index_obj, days_difference):
+  return False
   # Check daily Stoploss
   if sum(Transaction.objects.filter(date__date=datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), indicate='EXIT').values_list('profit', flat=True)) < -configuration_obj.daily_fixed_stoploss:
     return True

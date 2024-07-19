@@ -3,7 +3,7 @@ from django.contrib import admin
 from logs.models import Log
 from admin_extra_buttons.api import ExtraButtonsMixin, button
 from admin_extra_buttons.utils import HttpResponseRedirectToReferrer
-from tasks import PivotUpdate, BasicSetupJob, DeleteLogs, FyersSetup, NotifyUsers, CallPutAction, Minute1
+from tasks import PivotUpdate, BasicSetupJob, DeleteLogs, FyersSetup, NotifyUsers, CallPutAction, ChainTracker
 
 # Register your models here.
 @admin.register(Log)
@@ -58,7 +58,7 @@ class LogAdmin(ExtraButtonsMixin, admin.ModelAdmin):
             html_attrs={'style': 'background-color:#FF3364;color:black'})
     def SATARU_GOJO(self, request):
         self.message_user(request, 'SATARU GOJO called')
-        Minute1()
+        ChainTracker()
         self.message_user(request, 'SATARU GOJO Done')
         return HttpResponseRedirectToReferrer(request)
 

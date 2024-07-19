@@ -192,7 +192,7 @@ def FyersSetup():
     try:
         sleep(3)
         global angel_pratik_conn
-        angel_pratik_conn, _ = AngelOne('Angel-Pratik')
+        angel_pratik_conn, _ = AngelOne('Angel-Himanshu')
         user_profile_name = GenerateFyersToken('Fyers-Pratik')
         write_info_log(
             logger, f"Fyer's User Profile name is {user_profile_name}.")
@@ -269,8 +269,8 @@ def BasicSetupJob():
     try:
         # Fetch Data
         data = {
-            # "BANKEX": ["BSE:BANKEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 100, 1, '99919012'],
-            # "MIDCPNIFTY": ["NSE:MIDCPNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 25, 1, '99926014'],
+            "BANKEX": ["BSE:BANKEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 100, 1, '99919012'],
+            "MIDCPNIFTY": ["NSE:MIDCPNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 25, 1, '99926014'],
             "FINNIFTY": ["NSE:FINNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 1).strftime('%d-%b-%Y'), 50, 2, '99926037'],
             "BANKNIFTY": ["NSE:NIFTYBANK-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 2).strftime('%d-%b-%Y'), 100, 3, '99926009'],
             "NIFTY": ["NSE:NIFTY50-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 3).strftime('%d-%b-%Y'), 50, 4, '99926000'],
@@ -562,4 +562,173 @@ def CallPutAction():
     write_info_log(
         logger, f'Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
     write_info_log(logger, 'Call Put Action: Ended')
+    return True
+
+
+def ChainTracker():
+    try:
+        sleep(1)
+        now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
+
+        # create or get log in db
+        logger = create_logger(
+            file_name=f'{now.strftime("%d-%b-%Y %H:%M:%S")}-Chain_Tracker')
+        write_info_log(logger, 'Chain_Tracker: Started')
+
+        if now.time() < time(9, 18, 00):
+            raise Exception("Market Not Started")
+        elif now.time() > time(15, 14, 00):
+            raise Exception("Market is Closed")
+
+        fyers_conn = Fyers('Fyers-Pratik')
+        global angel_pratik_conn
+        angel_conn = angel_pratik_conn
+
+        configuration_obj = Configuration.objects.filter(is_active=True)[0]
+
+        index_obj_list = Index.objects.filter(is_active=True).order_by('expiry_date')
+
+        for index_obj in index_obj_list:
+            try:
+                write_info_log(logger, f'Index: {index_obj.index} : Started')
+
+                symbol_list = []
+                mode = None
+
+                days_difference = (index_obj.expiry_date - now.date()).days
+                entries_list = StockConfig.objects.filter(symbol__index=index_obj, is_active=True)
+
+                if not entries_list:
+                    if Check_Entry(now, configuration_obj, index_obj, days_difference):
+                        write_info_log(logger, f'Index: {index_obj.index} : Entry Passed')
+                        pass
+                    else:
+                        from_day = now - timedelta(days=7)
+                        data_frame_5 = fyers_get_data(
+                            index_obj.index_symbol , now, from_day, '5', fyers_conn, logger=logger)
+
+                        underlying_ltp = data_frame_5['Close'].iloc[-1]
+                        write_info_log(logger, f'{index_obj.index} LTP : {underlying_ltp}')
+
+                        super_trend = SUPER_TREND(high=data_frame_5['High'], low=data_frame_5['Low'], close=data_frame_5['Close'], length=10, multiplier=3)
+
+                        if data_frame_5['Close'].iloc[-1] > super_trend[-1]:
+                            put_entry_stock_obj_list = StockConfig.objects.filter(mode='PE', symbol__index=index_obj)
+                            ForceExit(put_entry_stock_obj_list, fyers_conn, angel_conn, configuration_obj)
+                            put_entry_stock_obj_list.delete()
+                            mode = 'CE'
+                            symbol_list = [ f"{symbol}{mode}" for symbol in OptionSymbol.objects.filter(index=index_obj,  strike_price__gte=underlying_ltp, is_active=True).values_list('symbol', flat=True) ]
+                            symbol_list.sort()
+                        
+                        elif data_frame_5['Close'].iloc[-1] < super_trend[-1]:
+                            call_entry_stock_obj_list = StockConfig.objects.filter(mode='CE', symbol__index=index_obj)
+                            ForceExit(call_entry_stock_obj_list, fyers_conn, angel_conn, configuration_obj)
+                            call_entry_stock_obj_list.delete()
+                            mode = 'PE'
+                            symbol_list = [ f"{symbol}{mode}" for symbol in OptionSymbol.objects.filter(index=index_obj,strike_price__lte=underlying_ltp, is_active=True).values_list('symbol', flat=True) ]
+                            symbol_list.sort(reverse=True)
+
+                        else:
+                            mode = None
+
+                        if days_difference == 0:
+                            fix_target = index_obj.fixed_target
+                        elif index_obj.index in ['BANKNIFTY'] and days_difference in [6]:
+                            fix_target = 18.33
+                        elif index_obj.index in ['FINNIFTY'] and days_difference in [6, 5]:
+                            fix_target = 13.33
+                        elif days_difference in [1, 2, 3]:
+                            fix_target = 13.33
+                        else:
+                            fix_target = index_obj.fixed_target/days_difference
+                        data = {
+                            'mode': mode,
+                            'index': index_obj,
+                            'configuration': configuration_obj,
+                            'target': index_obj.target,
+                            'stoploss': index_obj.stoploss,
+                            'logger': logger,
+                            'fixed_target': fix_target,
+                            'conn': fyers_conn,
+                            'angel_conn': angel_conn,
+                        }
+
+                        for symbol in symbol_list:
+                            # sleep(0.2)
+                            try:
+                                ltp = fyers_conn.quotes({"symbols": symbol})['d'][0]['v']['lp']
+                                data['symbol'] = symbol
+                                data['price'] = ltp
+                                if ltp > index_obj.min_price:
+                                    if ltp < index_obj.max_price:
+                                        write_info_log(logger, f"Check for: {symbol}")
+                                        data_frame = fyers_get_data(
+                                            symbol , now, from_day, '1', fyers_conn, logger=logger)
+                                        sleep(0.2)
+
+                                        # Calculate Pivot for symbol
+                                        data_frame_D = fyers_get_data(
+                                            symbol , now, from_day, 'D', fyers_conn, logger=logger)
+                                        sleep(0.2)
+                                        last_day = data_frame_D.iloc[-2]
+
+                                        pivot_traditional = PIVOT(last_day)
+                                        index_obj.pivot = round(pivot_traditional['pivot'], 2)
+                                        index_obj.r1 = round(pivot_traditional['r1'], 2)
+                                        index_obj.s1 = round(pivot_traditional['s1'], 2)
+                                        index_obj.r2 = round(pivot_traditional['r2'], 2)
+                                        index_obj.s2 = round(pivot_traditional['s2'], 2)
+                                        index_obj.r3 = round(pivot_traditional['r3'], 2)
+                                        index_obj.s3 = round(pivot_traditional['s3'], 2)
+
+                                        if Entry_Call(data_frame, index_obj):
+                                            write_info_log(logger, f"{mode}-Entry: {index_obj.pivot} : {index_obj.r1} : {index_obj.s1}")
+                                            write_info_log(logger, f"{data['symbol']} on price {ltp} : Volatility : {data['fixed_target']}")
+                                            Price_Action_Trade(data)
+                                        break
+                                else:
+                                    break
+                            except Exception as e:
+                                write_error_log(logger, f'Trade Loop: {symbol}: {e}')
+
+                else:
+                    from_day = now - timedelta(days=7)
+                    data_frame = fyers_get_data(
+                        index_obj.index_symbol , now, from_day, '1', fyers_conn, logger=logger)
+                    write_info_log(logger, f'{index_obj.index} : 1 Min Check : Days Diff: {days_difference}')
+
+                    sleep(0.2)
+
+                    super_trend = SUPER_TREND(high=data_frame['High'], low=data_frame['Low'], close=data_frame['Close'], length=10, multiplier=3)
+
+                    underlying_ltp = data_frame['Close'].iloc[-1]
+                    write_info_log(logger, f'{index_obj.index} LTP : {underlying_ltp}')
+                    write_info_log(logger, f"High : {data_frame['High'].iloc[-1]} : Close : {data_frame['Close'].iloc[-1]} : Low : {data_frame['Low'].iloc[-1]}")
+
+                    for stock_obj in entries_list:
+                        if stock_obj.mode == 'CE':
+                            if data_frame['Low'].iloc[-1] < super_trend[-1]:
+                                write_info_log(logger, f"Force-Exit : {stock_obj.mode} : {stock_obj.symbol}")
+                                ForceExit([stock_obj], fyers_conn, angel_conn, configuration_obj)
+                                stock_obj.delete()
+                                pass
+                        elif stock_obj.mode == 'PE':
+                            if data_frame['High'].iloc[-1] > super_trend[-1]:
+                                write_info_log(logger, f"Force-Exit : {stock_obj.mode} : {stock_obj.symbol}")
+                                ForceExit([stock_obj], fyers_conn, angel_conn, configuration_obj)
+                                stock_obj.delete()
+                                pass
+                        else:
+                            write_info_log(logger, f"Mode not available : {stock_obj.mode} : {stock_obj.symbol}")
+
+                write_info_log(logger, f'Index: {index_obj.index} : Ended')
+            except Exception as e:
+                write_error_log(logger, f'Error in Index: {index_obj.index} : {e}')
+
+    except Exception as e:
+        write_error_log(logger, f'{e}')
+
+    write_info_log(
+        logger, f'Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
+    write_info_log(logger, 'Chain_Tracker: Ended')
     return True
