@@ -269,7 +269,7 @@ def BasicSetupJob():
     try:
         # Fetch Data
         data = {
-            "BANKEX": ["BSE:BANKEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 100, 1, '99919012'],
+            # "BANKEX": ["BSE:BANKEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 100, 1, '99919012'],
             "MIDCPNIFTY": ["NSE:MIDCPNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 25, 1, '99926014'],
             "FINNIFTY": ["NSE:FINNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 1).strftime('%d-%b-%Y'), 50, 2, '99926037'],
             "BANKNIFTY": ["NSE:NIFTYBANK-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 2).strftime('%d-%b-%Y'), 100, 3, '99926009'],
@@ -685,7 +685,7 @@ def ChainTracker():
                                             write_info_log(logger, f"{mode}-Entry: {index_obj.pivot} : {index_obj.r1} : {index_obj.s1}")
                                             write_info_log(logger, f"{data['symbol']} on price {ltp} : Volatility : {data['fixed_target']}")
                                             Price_Action_Trade(data)
-                                        break
+                                            break
                                 else:
                                     break
                             except Exception as e:
@@ -694,7 +694,7 @@ def ChainTracker():
                 else:
                     from_day = now - timedelta(days=7)
                     data_frame = fyers_get_data(
-                        index_obj.index_symbol , now, from_day, '1', fyers_conn, logger=logger)
+                        f"{entries_list[0].symbol}{entries_list[0].mode}" , now, from_day, '1', fyers_conn, logger=logger)
                     write_info_log(logger, f'{index_obj.index} : 1 Min Check : Days Diff: {days_difference}')
 
                     sleep(0.2)
@@ -705,21 +705,10 @@ def ChainTracker():
                     write_info_log(logger, f'{index_obj.index} LTP : {underlying_ltp}')
                     write_info_log(logger, f"High : {data_frame['High'].iloc[-1]} : Close : {data_frame['Close'].iloc[-1]} : Low : {data_frame['Low'].iloc[-1]}")
 
-                    for stock_obj in entries_list:
-                        if stock_obj.mode == 'CE':
-                            if data_frame['Low'].iloc[-1] < super_trend[-1]:
-                                write_info_log(logger, f"Force-Exit : {stock_obj.mode} : {stock_obj.symbol}")
-                                ForceExit([stock_obj], fyers_conn, angel_conn, configuration_obj)
-                                stock_obj.delete()
-                                pass
-                        elif stock_obj.mode == 'PE':
-                            if data_frame['High'].iloc[-1] > super_trend[-1]:
-                                write_info_log(logger, f"Force-Exit : {stock_obj.mode} : {stock_obj.symbol}")
-                                ForceExit([stock_obj], fyers_conn, angel_conn, configuration_obj)
-                                stock_obj.delete()
-                                pass
-                        else:
-                            write_info_log(logger, f"Mode not available : {stock_obj.mode} : {stock_obj.symbol}")
+                    if data_frame['Low'].iloc[-1] < super_trend[-1]:
+                        write_info_log(logger, f"Force-Exit : {entries_list[0].mode} : {entries_list[0].symbol}")
+                        ForceExit([entries_list[0]], fyers_conn, angel_conn, configuration_obj)
+                        entries_list[0].delete()
 
                 write_info_log(logger, f'Index: {index_obj.index} : Ended')
             except Exception as e:
