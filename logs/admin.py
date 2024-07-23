@@ -56,10 +56,10 @@ class LogAdmin(ExtraButtonsMixin, admin.ModelAdmin):
     
     @button(change_form=True,
             html_attrs={'style': 'background-color:#FF3364;color:black'})
-    def SATARU_GOJO(self, request):
-        self.message_user(request, 'SATARU GOJO called')
+    def SUKUNA(self, request):
+        self.message_user(request, 'Sukuna called')
         ChainTracker()
-        self.message_user(request, 'SATARU GOJO Done')
+        self.message_user(request, 'Sukuna Done')
         return HttpResponseRedirectToReferrer(request)
 
     @button(change_form=True,
