@@ -22,8 +22,8 @@ def start():
                 hour='9-15', second='*/40', timezone='Asia/Kolkata')
     sched.add_job(DeleteLogs, 'cron', day_of_week='mon-fri',
                 hour='9', minute='17', second='30', timezone='Asia/Kolkata')
-    # sched.add_job(NotifyUsers, 'cron', day_of_week='mon-fri',
-    #             hour='15', minute='19', timezone='Asia/Kolkata')
+    sched.add_job(NotifyUsers, 'cron', day_of_week='mon-fri',
+                hour='15', minute='19', timezone='Asia/Kolkata')
     sched.add_job(PivotUpdate, 'cron', day_of_week='mon-fri',
                 hour='9', minute='17', timezone='Asia/Kolkata')
     sched.add_job(RecordUpdate, 'cron', day_of_week='mon-fri',
