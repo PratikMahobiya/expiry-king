@@ -273,8 +273,8 @@ def BasicSetupJob():
             # "MIDCPNIFTY": ["NSE:MIDCPNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 25, 1, '99926014'],
             "FINNIFTY": ["NSE:FINNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 1).strftime('%d-%b-%Y'), 50, 2, '99926037'],
             "BANKNIFTY": ["NSE:NIFTYBANK-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 2).strftime('%d-%b-%Y'), 100, 3, '99926009'],
-            # "NIFTY": ["NSE:NIFTY50-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 3).strftime('%d-%b-%Y'), 50, 4, '99926000'],
-            # "SENSEX": ["BSE:SENSEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 4).strftime('%d-%b-%Y'), 100, 5, '99919000'],
+            "NIFTY": ["NSE:NIFTY50-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 3).strftime('%d-%b-%Y'), 50, 4, '99926000'],
+            "SENSEX": ["BSE:SENSEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 4).strftime('%d-%b-%Y'), 100, 5, '99919000'],
         }
 
         # Stocks Setup
@@ -604,15 +604,15 @@ def ChainTracker():
                         pass
                     else:
                         from_day = now - timedelta(days=7)
-                        data_frame_5 = fyers_get_data(
-                            index_obj.index_symbol , now, from_day, '5', fyers_conn, logger=logger)
+                        data_frame = fyers_get_data(
+                            index_obj.index_symbol , now, from_day, '2', fyers_conn, logger=logger)
 
-                        underlying_ltp = data_frame_5['Close'].iloc[-1]
+                        underlying_ltp = data_frame['Close'].iloc[-1]
                         write_info_log(logger, f'{index_obj.index} LTP : {underlying_ltp}')
 
-                        super_trend = SUPER_TREND(high=data_frame_5['High'], low=data_frame_5['Low'], close=data_frame_5['Close'], length=10, multiplier=3)
+                        super_trend = SUPER_TREND(high=data_frame['High'], low=data_frame['Low'], close=data_frame['Close'], length=10, multiplier=3)
 
-                        if data_frame_5['Close'].iloc[-1] > super_trend[-1]:
+                        if data_frame['Close'].iloc[-1] > super_trend[-1]:
                             put_entry_stock_obj_list = StockConfig.objects.filter(mode='PE', symbol__index=index_obj)
                             ForceExit(put_entry_stock_obj_list, fyers_conn, angel_conn, configuration_obj)
                             put_entry_stock_obj_list.delete()
@@ -620,7 +620,7 @@ def ChainTracker():
                             symbol_list = [ f"{symbol}{mode}" for symbol in OptionSymbol.objects.filter(index=index_obj,  strike_price__gte=underlying_ltp, is_active=True).values_list('symbol', flat=True) ]
                             symbol_list.sort()
                         
-                        elif data_frame_5['Close'].iloc[-1] < super_trend[-1]:
+                        elif data_frame['Close'].iloc[-1] < super_trend[-1]:
                             call_entry_stock_obj_list = StockConfig.objects.filter(mode='CE', symbol__index=index_obj)
                             ForceExit(call_entry_stock_obj_list, fyers_conn, angel_conn, configuration_obj)
                             call_entry_stock_obj_list.delete()
