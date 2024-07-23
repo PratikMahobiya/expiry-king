@@ -681,11 +681,11 @@ def ChainTracker():
                                         index_obj.r3 = round(pivot_traditional['r3'], 2)
                                         index_obj.s3 = round(pivot_traditional['s3'], 2)
 
+                                        write_info_log(logger, f"Pivot: {index_obj.pivot} : {index_obj.r1} : {index_obj.s1}")
                                         if Entry_Call(data_frame, index_obj):
-                                            write_info_log(logger, f"{mode}-Entry: {index_obj.pivot} : {index_obj.r1} : {index_obj.s1}")
-                                            write_info_log(logger, f"{data['symbol']} on price {ltp} : Volatility : {data['fixed_target']}")
+                                            write_info_log(logger, f"{mode}-Entry: {data['symbol']} on price {ltp} : Volatility : {data['fixed_target']}")
                                             Price_Action_Trade(data)
-                                            break
+                                        break
                                 else:
                                     break
                             except Exception as e:
