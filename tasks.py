@@ -81,7 +81,7 @@ def NotifyUsers():
         phone_number_id = "139249165928488" # Phone number ID provided
         access_token = "EAAPJg0jr5E0BOwSOFZAVl9kN4CvvRPa23NBUMyUIKZBC9msakFSWqmZAMLJYEP3KGDzAYDo6dCiQrGj9I2HV4nW2BnZALuBZCwbhVeZCq8N85dszDHnpJC7XZCah51lTmXJcbvHwXXnThvb7yE15je8JTcTDhXRZB1WbnOhZCJkZAsafZCBLZAJSAJaO9XruWlRoY1uN" # Your temporary access token
 
-        day_date = now.strftime("%A, %d %B, %Y")
+        day_date = f"{now.strftime("%A, %d %B, %Y")}, Expiry-King"
         price_action_obj = DailyRecord.objects.get(date=now.date(), is_active=True)
 
         price_action_str = ""
@@ -113,7 +113,7 @@ def NotifyUsers():
                 total_str += '-----------------------------------'
                 total_str +=  '*' + f'Trading Stopped because Daily Stoploss Hitted {daily_sl_obj.daily_fixed_stoploss} % at {(daily_sl_obj.daily_max_loss_time + timedelta(hours=5, minutes=30)).strftime("%T")}' + '*' + '.'
 
-        recipient_phone_number_list = [("Himanshu", '+917415535562'), ("Pratik", "+917000681073"), ("Sudeep", '+919713113031')] #, ("Shambhu", '+919329561945'), ("Rahul", '+918109912368'),
+        recipient_phone_number_list = [("Pratik", "+917000681073")] #, ("Shambhu", '+919329561945'), ("Rahul", '+918109912368'), ("Himanshu", '+917415535562'), ("Sudeep", '+919713113031')
 
         for user_name, recipient_phone_number in recipient_phone_number_list:
             sleep(1)
