@@ -273,8 +273,8 @@ def BasicSetupJob():
             # "MIDCPNIFTY": ["NSE:MIDCPNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 25, 1, '99926014'],
             "FINNIFTY": ["NSE:FINNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 1).strftime('%d-%b-%Y'), 50, 2, '99926037'],
             "BANKNIFTY": ["NSE:NIFTYBANK-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 2).strftime('%d-%b-%Y'), 100, 3, '99926009'],
-            "NIFTY": ["NSE:NIFTY50-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 3).strftime('%d-%b-%Y'), 50, 4, '99926000'],
-            "SENSEX": ["BSE:SENSEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 4).strftime('%d-%b-%Y'), 100, 5, '99919000'],
+            # "NIFTY": ["NSE:NIFTY50-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 3).strftime('%d-%b-%Y'), 50, 4, '99926000'],
+            # "SENSEX": ["BSE:SENSEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 4).strftime('%d-%b-%Y'), 100, 5, '99919000'],
         }
 
         # Stocks Setup
