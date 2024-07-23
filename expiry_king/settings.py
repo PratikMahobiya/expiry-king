@@ -29,9 +29,9 @@ DEBUG = os.getenv("DEBUG", "1").lower() in ["true", "t", "1"]
 
 ALLOWED_HOSTS = ["*"]
 
-CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "https://trade-bros.onrender.com,https://localhost:8000,https://127.0.0.1:8000").split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "https://expiry-king.onrender.com,https://localhost:8000,https://127.0.0.1:8000").split(",")
 
-BED_URL_DOMAIN = os.getenv("CSRF_TRUSTED_ORIGINS", "https://trade-bros.onrender.com")
+BED_URL_DOMAIN = os.getenv("CSRF_TRUSTED_ORIGINS", "https://expiry-king.onrender.com")
 
 # Application definition
 
