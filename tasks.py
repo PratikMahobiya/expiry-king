@@ -86,7 +86,7 @@ def NotifyUsers():
 
         price_action_str = ""
         total_str = ""
-        price_action_str += 'Sataru-Gojo: ' + '*' + str(price_action_obj.p_l) + ' %' + '*' + ' on: ' + '*' + str(price_action_obj.total_entry) + '*' + ' trade, were we reached a Max-Profit of ' + '*' + str(price_action_obj.daily_max_profit) + ' %' + '*'  +  ' with Max-Loss of ' + '*' + str(price_action_obj.daily_max_loss) + ' %' + '*' + '.'
+        price_action_str += 'Sukuna: ' + '*' + str(price_action_obj.p_l) + ' %' + '*' + ' on: ' + '*' + str(price_action_obj.total_entry) + '*' + ' trade, were we reached a Max-Profit of ' + '*' + str(price_action_obj.daily_max_profit) + ' %' + '*'  +  ' with Max-Loss of ' + '*' + str(price_action_obj.daily_max_loss) + ' %' + '*' + '.'
 
         total_str = 'Total: ' + '*' + str(price_action_obj.p_l) + ' %' + '*' + ' on ' + '*' + str(price_action_obj.total_entry) + '*' + ' trades. '
         
