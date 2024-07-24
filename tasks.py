@@ -446,7 +446,7 @@ def ChainTracker():
                     else:
                         from_day = now - timedelta(days=7)
                         data_frame = fyers_get_data(
-                            index_obj.index_symbol , now, from_day, '2', fyers_conn, logger=logger)
+                            index_obj.index_symbol , now, from_day, '5', fyers_conn, logger=logger)
 
                         underlying_ltp = data_frame['Close'].iloc[-1]
                         write_info_log(logger, f'{index_obj.index} LTP : {underlying_ltp}')
