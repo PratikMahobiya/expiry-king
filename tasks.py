@@ -491,7 +491,6 @@ def ChainTracker():
                         }
 
                         for symbol in symbol_list:
-                            # sleep(0.2)
                             try:
                                 ltp = fyers_conn.quotes({"symbols": symbol})['d'][0]['v']['lp']
                                 data['symbol'] = symbol
@@ -501,12 +500,10 @@ def ChainTracker():
                                         write_info_log(logger, f"Check for: {symbol}")
                                         data_frame = fyers_get_data(
                                             symbol , now, from_day, '1', fyers_conn, logger=logger)
-                                        # sleep(0.2)
 
                                         # Calculate Pivot for symbol
                                         data_frame_D = fyers_get_data(
                                             symbol , now, from_day, 'D', fyers_conn, logger=logger)
-                                        # sleep(0.2)
                                         last_day = data_frame_D.iloc[-2]
 
                                         pivot_traditional = PIVOT(last_day)
@@ -533,8 +530,6 @@ def ChainTracker():
                     data_frame = fyers_get_data(
                         f"{entries_list[0].symbol}{entries_list[0].mode}" , now, from_day, '1', fyers_conn, logger=logger)
                     write_info_log(logger, f'{index_obj.index} : 1 Min Check : Days Diff: {days_difference}')
-
-                    # sleep(0.2)
 
                     super_trend = SUPER_TREND(high=data_frame['High'], low=data_frame['Low'], close=data_frame['Close'], length=10, multiplier=3)
 
