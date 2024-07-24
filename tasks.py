@@ -113,7 +113,7 @@ def NotifyUsers():
                 total_str += '-----------------------------------'
                 total_str +=  '*' + f'Trading Stopped because Daily Stoploss Hitted {daily_sl_obj.daily_fixed_stoploss} % at {(daily_sl_obj.daily_max_loss_time + timedelta(hours=5, minutes=30)).strftime("%T")}' + '*' + '.'
 
-        recipient_phone_number_list = [("Pratik", "+917000681073")] #, ("Shambhu", '+919329561945'), ("Rahul", '+918109912368'), ("Himanshu", '+917415535562'), ("Sudeep", '+919713113031')
+        recipient_phone_number_list = [("Pratik", "+917000681073"), ] #, ("Shambhu", '+919329561945'), ("Rahul", '+918109912368'), ("Himanshu", '+917415535562'), ("Sudeep", '+919713113031')
 
         for user_name, recipient_phone_number in recipient_phone_number_list:
             sleep(1)
@@ -153,7 +153,7 @@ def NotifyUsers():
                 'to': recipient_phone_number,
                 'type': 'template',
                 'template': {
-                    'name': 'expiry_king_daily_trade_notification',
+                    'name': 'trade_bros_daily_trade_notification',
                     'language': {
                         'code': 'en'
                     },
