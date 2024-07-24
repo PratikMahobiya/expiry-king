@@ -270,11 +270,11 @@ def BasicSetupJob():
         # Fetch Data
         data = {
             # "BANKEX": ["BSE:BANKEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 100, 1, '99919012'],
-            # "MIDCPNIFTY": ["NSE:MIDCPNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 25, 1, '99926014'],
+            "MIDCPNIFTY": ["NSE:MIDCPNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 25, 1, '99926014'],
             "FINNIFTY": ["NSE:FINNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 1).strftime('%d-%b-%Y'), 50, 2, '99926037'],
             "BANKNIFTY": ["NSE:NIFTYBANK-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 2).strftime('%d-%b-%Y'), 100, 3, '99926009'],
-            # "NIFTY": ["NSE:NIFTY50-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 3).strftime('%d-%b-%Y'), 50, 4, '99926000'],
-            # "SENSEX": ["BSE:SENSEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 4).strftime('%d-%b-%Y'), 100, 5, '99919000'],
+            "NIFTY": ["NSE:NIFTY50-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 3).strftime('%d-%b-%Y'), 50, 4, '99926000'],
+            "SENSEX": ["BSE:SENSEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 4).strftime('%d-%b-%Y'), 100, 5, '99919000'],
         }
 
         # Stocks Setup
@@ -427,7 +427,7 @@ def ChainTracker():
 
         configuration_obj = Configuration.objects.filter(is_active=True)[0]
 
-        index_obj_list = Index.objects.filter(is_active=True).order_by('expiry_date')
+        index_obj_list = Index.objects.filter(is_active=True).order_by('expiry_date')[:2]
 
         for index_obj in index_obj_list:
             try:
@@ -474,10 +474,6 @@ def ChainTracker():
 
                         if days_difference == 0:
                             fix_target = index_obj.fixed_target
-                        elif index_obj.index in ['BANKNIFTY'] and days_difference in [6]:
-                            fix_target = 18.33
-                        elif index_obj.index in ['FINNIFTY'] and days_difference in [6, 5]:
-                            fix_target = 13.33
                         elif days_difference in [1, 2, 3]:
                             fix_target = 13.33
                         else:
