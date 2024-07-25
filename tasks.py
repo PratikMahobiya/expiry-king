@@ -473,7 +473,10 @@ def ChainTracker():
                             mode = None
 
                         if days_difference == 0:
-                            fix_target = index_obj.fixed_target
+                            if index_obj.index in ['NIFTY']:
+                                fix_target = index_obj.fixed_target - 10
+                            else:
+                                fix_target = index_obj.fixed_target
                         elif days_difference in [1, 2, 3]:
                             fix_target = 13.33
                         else:
