@@ -530,8 +530,10 @@ def ChainTracker():
 
                 else:
                     from_day = now - timedelta(days=7)
+                    # data_frame = fyers_get_data(
+                    #     f"{entries_list[0].symbol}{entries_list[0].mode}" , now, from_day, '1', fyers_conn, logger=logger)
                     data_frame = fyers_get_data(
-                        f"{entries_list[0].symbol}{entries_list[0].mode}" , now, from_day, '1', fyers_conn, logger=logger)
+                        index_obj.index_symbol , now, from_day, '1', fyers_conn, logger=logger)
                     write_info_log(logger, f'{index_obj.index} : 1 Min Check : Days Diff: {days_difference}')
 
                     super_trend = SUPER_TREND(high=data_frame['High'], low=data_frame['Low'], close=data_frame['Close'], length=10, multiplier=3)
