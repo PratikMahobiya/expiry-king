@@ -536,10 +536,21 @@ def ChainTracker():
                     write_info_log(logger, f'{index_obj.index} LTP : {underlying_ltp}')
                     write_info_log(logger, f"High : {data_frame['High'].iloc[-1]} : Close : {data_frame['Close'].iloc[-1]} : Low : {data_frame['Low'].iloc[-1]}")
 
-                    if data_frame['Low'].iloc[-1] < super_trend[-1]:
-                        write_info_log(logger, f"Force-Exit : {entries_list[0].mode} : {entries_list[0].symbol}")
-                        ForceExit([entries_list[0]], fyers_conn, angel_conn, configuration_obj)
-                        entries_list[0].delete()
+                    for stock_obj in entries_list:
+                        if stock_obj.mode == 'CE':
+                            if data_frame['Low'].iloc[-1] < super_trend[-1]:
+                                write_info_log(logger, f"Force-Exit : {stock_obj.mode} : {stock_obj.symbol}")
+                                ForceExit([stock_obj], fyers_conn, angel_conn, configuration_obj)
+                                stock_obj.delete()
+                                pass
+                        elif stock_obj.mode == 'PE':
+                            if data_frame['High'].iloc[-1] > super_trend[-1]:
+                                write_info_log(logger, f"Force-Exit : {stock_obj.mode} : {stock_obj.symbol}")
+                                ForceExit([stock_obj], fyers_conn, angel_conn, configuration_obj)
+                                stock_obj.delete()
+                                pass
+                        else:
+                            write_info_log(logger, f"Mode not available : {stock_obj.mode} : {stock_obj.symbol}")
 
                 write_info_log(logger, f'Index: {index_obj.index} : Ended')
             except Exception as e:
