@@ -488,8 +488,8 @@ def ChainTracker():
 
                         if days_difference == 0:
                             fix_target = index_obj.fixed_target
-                        # elif days_difference in [1, 2, 3]:
-                        #     fix_target = 13.33
+                        elif days_difference in [1]:
+                            fix_target = index_obj.fixed_target/2
                         else:
                             fix_target = index_obj.fixed_target/days_difference
 
