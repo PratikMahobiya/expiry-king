@@ -82,7 +82,7 @@ class DailyStatusAdmin(admin.ModelAdmin):
     #         if index_obj.expiry_date == now.date() or ((index_obj.expiry_date - now.date()).days == 7):
     #             daily_target = index_obj.fixed_target + 5
     #         else:
-    #             daily_target = round(index_obj.fixed_target/(days_difference+1), 2)
+    #             daily_target = round(index_obj.fixed_target/(days_difference+1) + 5, 2)
     #         if round(trans_obj['profit'], 2) > daily_target:
     #             target_status = "Achived "
     #         else:
