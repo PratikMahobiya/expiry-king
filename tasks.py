@@ -427,7 +427,7 @@ def ChainTracker():
 
         configuration_obj = Configuration.objects.filter(is_active=True)[0]
 
-        index_obj_list = Index.objects.filter(is_active=True).order_by('expiry_date')[:2]
+        index_obj_list = Index.objects.filter(is_active=True).order_by('expiry_date')
 
         for index_obj in index_obj_list:
             try:
@@ -472,15 +472,31 @@ def ChainTracker():
                         else:
                             mode = None
 
-                        if days_difference == 0:
-                            if index_obj.index in ['NIFTY']:
-                                fix_target = index_obj.fixed_target - 10
-                            else:
-                                fix_target = index_obj.fixed_target
-                        elif days_difference in [1, 2, 3]:
-                            fix_target = 13.33
+                        # 52 Week High check for Chain First Strike Price
+                        write_info_log(logger, f"Check for: {symbol_list[0]}")
+                        data_frame = fyers_get_data(
+                            symbol_list[0] , now, from_day, '1', fyers_conn, logger=logger)
+
+                        high_52_candle = max(data_frame['High'].iloc[-52:-1])
+                        high_current_candle = data_frame['High'].iloc[-1]
+
+                        write_info_log(logger, f"52 Week High: {high_52_candle} : Current High : {high_current_candle}")
+                        if high_current_candle > high_52_candle:
+                            write_info_log(logger, f"{mode}-Entry:")
                         else:
-                            fix_target = index_obj.fixed_target/days_difference
+                            symbol_list = []
+
+                        # if days_difference == 0:
+                        #     if index_obj.index in ['NIFTY']:
+                        #         fix_target = index_obj.fixed_target - 10
+                        #     else:
+                        #         fix_target = index_obj.fixed_target
+                        # elif days_difference in [1, 2, 3]:
+                        #     fix_target = 13.33
+                        # else:
+                        #     fix_target = index_obj.fixed_target/days_difference
+
+                        fix_target = index_obj.fixed_target
                         data = {
                             'mode': mode,
                             'index': index_obj,
@@ -500,28 +516,8 @@ def ChainTracker():
                                 data['price'] = ltp
                                 if ltp > index_obj.min_price:
                                     if ltp < index_obj.max_price:
-                                        write_info_log(logger, f"Check for: {symbol}")
-                                        data_frame = fyers_get_data(
-                                            symbol , now, from_day, '1', fyers_conn, logger=logger)
-
-                                        # Calculate Pivot for symbol
-                                        data_frame_D = fyers_get_data(
-                                            symbol , now, from_day, 'D', fyers_conn, logger=logger)
-                                        last_day = data_frame_D.iloc[-2]
-
-                                        pivot_traditional = PIVOT(last_day)
-                                        index_obj.pivot = round(pivot_traditional['pivot'], 2)
-                                        index_obj.r1 = round(pivot_traditional['r1'], 2)
-                                        index_obj.s1 = round(pivot_traditional['s1'], 2)
-                                        index_obj.r2 = round(pivot_traditional['r2'], 2)
-                                        index_obj.s2 = round(pivot_traditional['s2'], 2)
-                                        index_obj.r3 = round(pivot_traditional['r3'], 2)
-                                        index_obj.s3 = round(pivot_traditional['s3'], 2)
-
-                                        write_info_log(logger, f"Pivot: {index_obj.pivot} : {index_obj.r1} : {index_obj.s1}")
-                                        if Entry_Call(data_frame, index_obj):
-                                            write_info_log(logger, f"{mode}-Entry: {data['symbol']} on price {ltp} : Volatility : {data['fixed_target']}")
-                                            Price_Action_Trade(data)
+                                        write_info_log(logger, f"{data['symbol']} on price {ltp} : Volatility : {data['fixed_target']}")
+                                        Price_Action_Trade(data)
                                         break
                                 else:
                                     break
@@ -530,8 +526,6 @@ def ChainTracker():
 
                 else:
                     from_day = now - timedelta(days=7)
-                    # data_frame = fyers_get_data(
-                    #     f"{entries_list[0].symbol}{entries_list[0].mode}" , now, from_day, '1', fyers_conn, logger=logger)
                     data_frame = fyers_get_data(
                         index_obj.index_symbol , now, from_day, '1', fyers_conn, logger=logger)
                     write_info_log(logger, f'{index_obj.index} : 1 Min Check : Days Diff: {days_difference}')

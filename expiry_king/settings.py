@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "admin_extra_buttons",
+    # "admin_extra_buttons",
     "import_export",
     
     "logs",
@@ -87,14 +87,14 @@ WSGI_APPLICATION = "expiry_king.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.parse("postgresql://expiry_king_user:ydOR55E4yvvNftTcWia6xhg6PBPDBGLE@dpg-cqd4hl3v2p9s73e7gqfg-a/expiry_king", conn_max_age=600),
+    "default": dj_database_url.parse("postgresql://expiry_king_xbcr_user:EaFByod8byYE0pNyZsMPo55dmEcFOr6V@dpg-cqjjroqj1k6c739thieg-a/expiry_king_xbcr", conn_max_age=600),
 } if os.getenv("SERVER_DB", True) else {
-    "default": dj_database_url.parse("postgresql://expiry_king_user:ydOR55E4yvvNftTcWia6xhg6PBPDBGLE@dpg-cqd4hl3v2p9s73e7gqfg-a.virginia-postgres.render.com/expiry_king", conn_max_age=600),
+    "default": dj_database_url.parse("postgresql://expiry_king_xbcr_user:EaFByod8byYE0pNyZsMPo55dmEcFOr6V@dpg-cqjjroqj1k6c739thieg-a.virginia-postgres.render.com/expiry_king_xbcr", conn_max_age=600),
 }
 
 # DATABASES = {
 #     "default": dj_database_url.parse("postgres://tradebros_ffv6_user:XLeQuTKte7aoyvQa5TOlWWf885tCGu4v@dpg-cpfnnartg9os73bhumqg-a.virginia-postgres.render.com/tradebros_ffv6", conn_max_age=600),
-# } if os.getenv("SERVER_DB", True) else {
+# } if os.getenv("SERVER_DB", False) else {
 #     "default": {
 #         "ENGINE": "django.db.backends.sqlite3",
 #         "NAME": BASE_DIR / "db.sqlite3",

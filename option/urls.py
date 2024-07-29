@@ -16,9 +16,11 @@ Including another URLconf
 """
 
 from django.urls import path
-from option.views import AwakeAPI, TelegramWebhook
+from option.views import AwakeAPI, TelegramWebhook, BasicSetupAPI, FyerLoginAPI
 
 urlpatterns = [
     path('awake/', AwakeAPI),
     path('telegram-webhook/', TelegramWebhook),
+    path('basic-setup/', BasicSetupAPI),
+    path('fyer-login/', FyerLoginAPI),
 ]

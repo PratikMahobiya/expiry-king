@@ -3,6 +3,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from tasks import BasicSetupJob, FyersSetup
 
 from logs.logger import create_logger, write_info_log
 
@@ -29,6 +30,26 @@ def TelegramWebhook(request):
             file_name=f'telegram-{datetime.now(tz=ZoneInfo("Asia/Kolkata")).date()}')
         write_info_log(logger, f'API Time: {datetime.now(tz=ZoneInfo("Asia/Kolkata")).strftime("%d-%b-%Y %H:%M:%S")}')
         write_info_log(logger, f'Request Payload: {payload}')
+        return HttpResponse(True)
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+@csrf_exempt
+def BasicSetupAPI(request):
+    try:
+        # create or get log in db
+        BasicSetupJob()
+        return HttpResponse(True)
+    except Exception as e:
+        return HttpResponse(str(e))
+
+
+@csrf_exempt
+def FyerLoginAPI(request):
+    try:
+        # create or get log in db
+        FyersSetup()
         return HttpResponse(True)
     except Exception as e:
         return HttpResponse(str(e))
