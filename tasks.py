@@ -480,23 +480,19 @@ def ChainTracker():
                         high_52_candle = max(data_frame['High'].iloc[-52:-1])
                         high_current_candle = data_frame['High'].iloc[-1]
 
-                        write_info_log(logger, f"52 Week High: {high_52_candle} : Current High : {high_current_candle}")
+                        write_info_log(logger, f"52 Candle High: {high_52_candle} : Current High : {high_current_candle}")
                         if high_current_candle > high_52_candle:
                             write_info_log(logger, f"{mode}-Entry:")
                         else:
                             symbol_list = []
 
-                        # if days_difference == 0:
-                        #     if index_obj.index in ['NIFTY']:
-                        #         fix_target = index_obj.fixed_target - 10
-                        #     else:
-                        #         fix_target = index_obj.fixed_target
+                        if days_difference == 0:
+                            fix_target = index_obj.fixed_target
                         # elif days_difference in [1, 2, 3]:
                         #     fix_target = 13.33
-                        # else:
-                        #     fix_target = index_obj.fixed_target/days_difference
+                        else:
+                            fix_target = index_obj.fixed_target/days_difference
 
-                        fix_target = index_obj.fixed_target
                         data = {
                             'mode': mode,
                             'index': index_obj,
