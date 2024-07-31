@@ -14,7 +14,7 @@ from helper.fyer_auto_generate_key import GenerateFyersToken
 from helper.check_ltp import TargetExit, TrailingStopLossExit, TrailingTargetUpdate, SquareOff
 from helper.common import Check_Entry, next_expiry_date, Entry_Call, Entry_Put
 from helper.connection import AngelOne, Fyers
-from helper.get_data import fyers_get_data
+from helper.get_data import angel_get_data
 from helper.indicator import PIVOT, SUPER_TREND
 from helper.option_setup import GetVelocity, StockConfigs
 from system_conf.models import Configuration
@@ -226,14 +226,15 @@ def PivotUpdate():
     write_info_log(logger, 'Pivot: STARTED')
     try:
         # Set Pivot Points
-        fyers_conn = Fyers('Fyers-Pratik')
+        global angel_pratik_conn
+        angel_conn = angel_pratik_conn
         index_obj_list = Index.objects.filter(is_active=True).order_by('expiry_date')
 
         from_day = now - timedelta(days=10)
         write_info_log(logger, f'Pivot: Started')
         for index_obj in index_obj_list:
-            data_frame = fyers_get_data(
-                index_obj.index_symbol , now, from_day, 'D', fyers_conn, logger=logger)
+            data_frame = angel_get_data(index_obj.exchange, index_obj.angel_token, now, from_day, 'ONE_DAY', angel_conn, logger=logger)
+            
             sleep(0.2)
 
             # last_day = data_frame.iloc[-1] if data_frame['date'].iloc[-1].date() == now.date() else data_frame.iloc[-2]
@@ -269,12 +270,12 @@ def BasicSetupJob():
     try:
         # Fetch Data
         data = {
-            # "BANKEX": ["BSE:BANKEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 100, 1, '99919012'],
-            # "MIDCPNIFTY": ["NSE:MIDCPNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 25, 1, '99926014'],
-            "FINNIFTY": ["NSE:FINNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 1).strftime('%d-%b-%Y'), 50, 2, '99926037'],
-            "BANKNIFTY": ["NSE:NIFTYBANK-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 2).strftime('%d-%b-%Y'), 100, 3, '99926009'],
-            "NIFTY": ["NSE:NIFTY50-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 3).strftime('%d-%b-%Y'), 50, 4, '99926000'],
-            "SENSEX": ["BSE:SENSEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 4).strftime('%d-%b-%Y'), 100, 5, '99919000'],
+            # "BANKEX": ["BSE:BANKEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 100, 1, '99919012', 'BSE'],
+            # "MIDCPNIFTY": ["NSE:MIDCPNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 25, 1, '99926014', 'NSE'],
+            "FINNIFTY": ["NSE:FINNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 1).strftime('%d-%b-%Y'), 50, 2, '99926037', 'NSE'],
+            "BANKNIFTY": ["NSE:NIFTYBANK-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 2).strftime('%d-%b-%Y'), 100, 3, '99926009', 'NSE'],
+            "NIFTY": ["NSE:NIFTY50-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 3).strftime('%d-%b-%Y'), 50, 4, '99926000', 'NSE'],
+            "SENSEX": ["BSE:SENSEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 4).strftime('%d-%b-%Y'), 100, 5, '99919000', 'BSE'],
         }
 
         # Stocks Setup
@@ -445,15 +446,13 @@ def ChainTracker():
                         pass
                     else:
                         from_day = now - timedelta(days=7)
-                        data_frame = fyers_get_data(
-                            index_obj.index_symbol , now, from_day, '1', fyers_conn, logger=logger)
+                        data_frame = angel_get_data(index_obj.exchange, index_obj.angel_token, now, from_day, 'ONE_MINUTE', angel_conn, logger=logger)
 
                         underlying_ltp = data_frame['Close'].iloc[-1]
                         write_info_log(logger, f'{index_obj.index} LTP : {underlying_ltp}')
 
                         if Entry_Call(data_frame, index_obj):
-                            data_frame_5 = fyers_get_data(
-                                index_obj.index_symbol , now, from_day, '5', fyers_conn, logger=logger)
+                            data_frame_5 = angel_get_data(index_obj.exchange, index_obj.angel_token, now, from_day, 'FIVE_MINUTE', angel_conn, logger=logger)
 
                             super_trend = SUPER_TREND(high=data_frame_5['High'], low=data_frame_5['Low'], close=data_frame_5['Close'], length=10, multiplier=3)
 
@@ -466,8 +465,7 @@ def ChainTracker():
                                 symbol_list.sort()
                                 write_info_log(logger, f"{mode}-Entry:")
                         elif Entry_Put(data_frame, index_obj):
-                            data_frame_5 = fyers_get_data(
-                                index_obj.index_symbol , now, from_day, '5', fyers_conn, logger=logger)
+                            data_frame_5 = angel_get_data(index_obj.exchange, index_obj.angel_token, now, from_day, 'FIVE_MINUTE', angel_conn, logger=logger)
                             
                             super_trend = SUPER_TREND(high=data_frame_5['High'], low=data_frame_5['Low'], close=data_frame_5['Close'], length=10, multiplier=3)
 
@@ -523,8 +521,8 @@ def ChainTracker():
 
                 else:
                     from_day = now - timedelta(days=7)
-                    data_frame = fyers_get_data(
-                        index_obj.index_symbol , now, from_day, '1', fyers_conn, logger=logger)
+                    data_frame = angel_get_data(index_obj.exchange, index_obj.angel_token, now, from_day, 'ONE_MINUTE', angel_conn, logger=logger)
+                    
                     write_info_log(logger, f'{index_obj.index} : 1 Min Check : Days Diff: {days_difference}')
 
                     super_trend = SUPER_TREND(high=data_frame['High'], low=data_frame['Low'], close=data_frame['Close'], length=10, multiplier=3)

@@ -5,10 +5,10 @@ import pandas as pd
 from logs.logger import write_error_log, write_info_log
 
 
-def angel_get_data(token, now, from_day, interval, conn, logger=None):
+def angel_get_data(exchange, token, now, from_day, interval, conn, logger=None):
     try:
         historicParam = {
-            "exchange": "NFO",
+            "exchange": exchange,
             "symboltoken": token,
             "interval": interval,
             "fromdate": from_day.strftime("%Y-%m-%d %H:%M"),
