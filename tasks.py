@@ -113,7 +113,7 @@ def NotifyUsers():
                 total_str += '-----------------------------------'
                 total_str +=  '*' + f'Trading Stopped because Daily Stoploss Hitted {daily_sl_obj.daily_fixed_stoploss} % at {(daily_sl_obj.daily_max_loss_time + timedelta(hours=5, minutes=30)).strftime("%T")}' + '*' + '.'
 
-        recipient_phone_number_list = [("Pratik", "+917000681073"), ] #, ("Shambhu", '+919329561945'), ("Rahul", '+918109912368'), ("Himanshu", '+917415535562'), ("Sudeep", '+919713113031')
+        recipient_phone_number_list = [("Pratik", "+917000681073"), ("Himanshu", '+917415535562')] #, ("Shambhu", '+919329561945'), ("Rahul", '+918109912368'), ("Sudeep", '+919713113031')
 
         for user_name, recipient_phone_number in recipient_phone_number_list:
             sleep(1)
@@ -270,7 +270,7 @@ def BasicSetupJob():
         # Fetch Data
         data = {
             # "BANKEX": ["BSE:BANKEX-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 100, 1, '99919012'],
-            "MIDCPNIFTY": ["NSE:MIDCPNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 25, 1, '99926014'],
+            # "MIDCPNIFTY": ["NSE:MIDCPNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 0).strftime('%d-%b-%Y'), 25, 1, '99926014'],
             "FINNIFTY": ["NSE:FINNIFTY-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 1).strftime('%d-%b-%Y'), 50, 2, '99926037'],
             "BANKNIFTY": ["NSE:NIFTYBANK-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 2).strftime('%d-%b-%Y'), 100, 3, '99926009'],
             "NIFTY": ["NSE:NIFTY50-INDEX", next_expiry_date(datetime.now(tz=ZoneInfo("Asia/Kolkata")).date(), 3).strftime('%d-%b-%Y'), 50, 4, '99926000'],
@@ -446,53 +446,54 @@ def ChainTracker():
                     else:
                         from_day = now - timedelta(days=7)
                         data_frame = fyers_get_data(
-                            index_obj.index_symbol , now, from_day, '5', fyers_conn, logger=logger)
+                            index_obj.index_symbol , now, from_day, '1', fyers_conn, logger=logger)
 
                         underlying_ltp = data_frame['Close'].iloc[-1]
                         write_info_log(logger, f'{index_obj.index} LTP : {underlying_ltp}')
 
-                        super_trend = SUPER_TREND(high=data_frame['High'], low=data_frame['Low'], close=data_frame['Close'], length=10, multiplier=3)
+                        if Entry_Call(data_frame, index_obj):
+                            data_frame_5 = fyers_get_data(
+                                index_obj.index_symbol , now, from_day, '5', fyers_conn, logger=logger)
 
-                        if data_frame['Close'].iloc[-1] > super_trend[-1]:
-                            put_entry_stock_obj_list = StockConfig.objects.filter(mode='PE', symbol__index=index_obj)
-                            ForceExit(put_entry_stock_obj_list, fyers_conn, angel_conn, configuration_obj)
-                            put_entry_stock_obj_list.delete()
-                            mode = 'CE'
-                            symbol_list = [ f"{symbol}{mode}" for symbol in OptionSymbol.objects.filter(index=index_obj,  strike_price__gte=underlying_ltp, is_active=True).values_list('symbol', flat=True) ]
-                            symbol_list.sort()
-                        
-                        elif data_frame['Close'].iloc[-1] < super_trend[-1]:
-                            call_entry_stock_obj_list = StockConfig.objects.filter(mode='CE', symbol__index=index_obj)
-                            ForceExit(call_entry_stock_obj_list, fyers_conn, angel_conn, configuration_obj)
-                            call_entry_stock_obj_list.delete()
-                            mode = 'PE'
-                            symbol_list = [ f"{symbol}{mode}" for symbol in OptionSymbol.objects.filter(index=index_obj,strike_price__lte=underlying_ltp, is_active=True).values_list('symbol', flat=True) ]
-                            symbol_list.sort(reverse=True)
+                            super_trend = SUPER_TREND(high=data_frame_5['High'], low=data_frame_5['Low'], close=data_frame_5['Close'], length=10, multiplier=3)
+
+                            if data_frame_5['Close'].iloc[-1] > super_trend[-1]:
+                                put_entry_stock_obj_list = StockConfig.objects.filter(mode='PE', symbol__index=index_obj)
+                                ForceExit(put_entry_stock_obj_list, fyers_conn, angel_conn, configuration_obj)
+                                put_entry_stock_obj_list.delete()
+                                mode = 'CE'
+                                symbol_list = [ f"{symbol}{mode}" for symbol in OptionSymbol.objects.filter(index=index_obj,  strike_price__gte=underlying_ltp, is_active=True).values_list('symbol', flat=True) ]
+                                symbol_list.sort()
+                                write_info_log(logger, f"{mode}-Entry:")
+                        elif Entry_Put(data_frame, index_obj):
+                            data_frame_5 = fyers_get_data(
+                                index_obj.index_symbol , now, from_day, '5', fyers_conn, logger=logger)
+                            
+                            super_trend = SUPER_TREND(high=data_frame_5['High'], low=data_frame_5['Low'], close=data_frame_5['Close'], length=10, multiplier=3)
+
+                            if data_frame_5['Close'].iloc[-1] < super_trend[-1]:
+                                call_entry_stock_obj_list = StockConfig.objects.filter(mode='CE', symbol__index=index_obj)
+                                ForceExit(call_entry_stock_obj_list, fyers_conn, angel_conn, configuration_obj)
+                                call_entry_stock_obj_list.delete()
+                                mode = 'PE'
+                                symbol_list = [ f"{symbol}{mode}" for symbol in OptionSymbol.objects.filter(index=index_obj,strike_price__lte=underlying_ltp, is_active=True).values_list('symbol', flat=True) ]
+                                symbol_list.sort(reverse=True)
+                                write_info_log(logger, f"{mode}-Entry:")
 
                         else:
                             mode = None
 
-                        # 52 Week High check for Chain First Strike Price
-                        write_info_log(logger, f"Check for: {symbol_list[0]}")
-                        data_frame = fyers_get_data(
-                            symbol_list[0] , now, from_day, '1', fyers_conn, logger=logger)
-
-                        high_52_candle = max(data_frame['High'].iloc[-52:-1])
-                        high_current_candle = data_frame['High'].iloc[-1]
-
-                        write_info_log(logger, f"52 Candle High: {high_52_candle} : Current High : {high_current_candle}")
-                        if high_current_candle > high_52_candle:
-                            write_info_log(logger, f"{mode}-Entry:")
-                        else:
-                            symbol_list = []
-
                         if days_difference == 0:
-                            fix_target = index_obj.fixed_target
-                        elif days_difference in [1]:
-                            fix_target = index_obj.fixed_target/2
+                            if index_obj.index in ['NIFTY']:
+                                fix_target = index_obj.fixed_target - 10
+                            else:
+                                fix_target = index_obj.fixed_target
+                        elif index_obj.index in ['FINNIFTY', 'BANKNIFTY'] and days_difference in [6, 5]:
+                            fix_target = 13.33
+                        elif days_difference in [1, 2, 3]:
+                            fix_target = 13.33
                         else:
                             fix_target = index_obj.fixed_target/days_difference
-
                         data = {
                             'mode': mode,
                             'index': index_obj,
