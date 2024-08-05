@@ -15,7 +15,7 @@ def Entry(date_time, data_frame, symbol, active_entry, sheet_data):
     fixed_target_price = round(data_frame['Close'] + data_frame['Close']*fixed_target/100, 2)
     fixed_stoploss_price = round(data_frame['Close'] - data_frame['Close']*fixed_stoploss/100, 2)
 
-    if len(active_entry) <= number_of_position:
+    if len(active_entry) < number_of_position:
         active_entry[symbol] = {
             'buy': True,
             'tr_sl': False,
@@ -41,6 +41,7 @@ def Exit(date_time, data_frame, symbol, active_entry, sheet_data):
         price_diff = sell_price - active_entry[symbol]['price']
         pnl = round((price_diff/active_entry[symbol]['price']) * 100, 2)
         days = (date_time - active_entry[symbol]['datetime']).days
+        active_entry[symbol]['max_low'] = pnl
 
         sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Stoploss', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days]
         sheet_data.append(sht_data)
@@ -82,6 +83,7 @@ def Exit(date_time, data_frame, symbol, active_entry, sheet_data):
         price_diff = sell_price - active_entry[symbol]['price']
         pnl = round((price_diff/active_entry[symbol]['price']) * 100, 2)
         days = (date_time - active_entry[symbol]['datetime']).days
+        active_entry[symbol]['max_low'] = pnl
 
         sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Stoploss', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days]
         sheet_data.append(sht_data)
@@ -96,6 +98,7 @@ sheet_data = [
 active_entry = {}
 flag_trsl = {}
 high_dict = {}
+number_of_entry_at_a_time = 0
 
 exclude_symbol = ['MAHINDCIE.NS', 'ORIENTREF.NS', 'PVR.NS', 'WABCOINDIA.NS', 'SRTRANSFIN.NS', 'LTI.NS', 'L&TFH.NS', 'MINDAIND.NS', 'CADILAHC.NS', 'IIFLWAM.NS', 'MOTHERSUMI.NS', 'BURGERKING.NS', 'SUNCLAYLTD.NS', 'SHRIRAMCIT.NS', 'ANGELBRKG.NS', 'WELSPUNIND.NS', 'KALPATPOWR.NS', 'AMARAJABAT.NS', 'HDFC.NS', 'SUPPETRO.NS', 'ADANITRANS.NS', 'PHILIPCARB.NS', 'MINDTREE.NS', 'UJJIVAN.NS', 'TATACOFFEE.NS', 'GODREJCP.NS']
 
@@ -103,11 +106,14 @@ file_name = 'nifty_50'
 symbol_list_unfiltered = ns.get_nifty50_with_ns()
 symbol_list = [symbol for symbol in symbol_list_unfiltered if symbol not in exclude_symbol]
 
-multiple_data_frame = yf.download(symbol_list, interval="1d", start='2000-04-01', end='2024-03-31', group_by='ticker', rounding=True)
+multiple_data_frame = yf.download(symbol_list, interval="1d", start='1999-04-01', end='2024-03-31', group_by='ticker', rounding=True)
 
 
 for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
     for symbol in symbol_list:
+        if len(active_entry) > number_of_entry_at_a_time:
+            number_of_entry_at_a_time = len(active_entry)
+
         if index > 52 and max(multiple_data_frame[symbol]['High'].iloc[index-52:index]) < multiple_data_frame.iloc[index][symbol]['High']:
             
             # Take Entry
@@ -182,8 +188,6 @@ with open(f'{file_name}.csv', mode='r') as csv_file:
     total_number_of_targets = 0
     total_number_of_stoploss = 0
     total_number_of_trsl = 0
-    entry = []
-    number_of_entry_at_a_time = 0
     entry_stays_days_bars = 0
     # Screener Variable
     sheet_data = [
@@ -199,14 +203,10 @@ with open(f'{file_name}.csv', mode='r') as csv_file:
 
         if row_data['Indicate'] == 'Entry':
             total_entry += 1
-            entry.append(row_data['Symbol'])
-            if len(entry) > number_of_entry_at_a_time:
-                number_of_entry_at_a_time = len(entry)
         elif row_data['Indicate'] == 'Exit':
             if float(row['Entry-Stays(days)']) > entry_stays_days_bars:
                 entry_stays_days_bars = float(row['Entry-Stays(days)'])
             total_exit += 1
-            entry.remove(row_data['Symbol'])
 
 
         if row_data['PnL(%)'] not in ['', ' ', None]:
