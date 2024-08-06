@@ -12,7 +12,7 @@ fixed_stoploss = 15         # 30 %
 number_of_position = 20     # Infinite or fixed
 wallet = 100000             # Wallet Balance
 entry_amount = 5000         # per entry
-fixed_flag = False
+fixed_flag = True
 increase_percent = 5       # When profit is greater then 10% then only entry amount increased by 5%
 
 def Entry(date_time, data_frame, symbol, active_entry, wallet, entry_amount, sheet_data):
@@ -29,7 +29,7 @@ def Entry(date_time, data_frame, symbol, active_entry, wallet, entry_amount, she
                 invested_amount -= data_frame['Close']
                 shares -= 1
                 break
-        wallet -= invested_amount
+        wallet = wallet - invested_amount
         active_entry[symbol] = {
             'buy': True,
             'tr_sl': False,
@@ -59,7 +59,10 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         days = (date_time - active_entry[symbol]['datetime']).days
         active_entry[symbol]['max_low'] = pnl
         gained_amount = active_entry[symbol]['shares'] * sell_price
-        wallet += gained_amount
+        wallet = wallet + gained_amount
+        if not fixed_flag:
+            if pnl < 0:
+                entry_amount = entry_amount - entry_amount * increase_percent/100
         
 
         sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Stoploss', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount]
@@ -73,7 +76,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
     #     pnl = round((price_diff/active_entry[symbol]['price']) * 100, 2)
     #     days = (date_time - active_entry[symbol]['datetime']).days
     #     gained_amount = active_entry[symbol]['shares'] * sell_price
-    #     wallet += gained_amount
+    #     wallet = wallet + gained_amount
     #     if not fixed_flag:
     #         if pnl > 10:
     #             entry_amount = entry_amount + entry_amount * increase_percent/100
@@ -88,7 +91,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
     #     pnl = round((price_diff/active_entry[symbol]['price']) * 100, 2)
     #     days = (date_time - active_entry[symbol]['datetime']).days
     #     gained_amount = active_entry[symbol]['shares'] * sell_price
-    #     wallet += gained_amount
+    #     wallet = wallet + gained_amount
     #     if not fixed_flag:
     #         if pnl > 10:
     #             entry_amount = entry_amount + entry_amount * increase_percent/100
@@ -103,7 +106,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         pnl = round((price_diff/active_entry[symbol]['price']) * 100, 2)
         days = (date_time - active_entry[symbol]['datetime']).days
         gained_amount = active_entry[symbol]['shares'] * sell_price
-        wallet += gained_amount
+        wallet = wallet + gained_amount
         if not fixed_flag:
             if pnl > 10:
                 entry_amount = entry_amount + entry_amount * increase_percent/100
@@ -119,7 +122,10 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         days = (date_time - active_entry[symbol]['datetime']).days
         active_entry[symbol]['max_low'] = pnl
         gained_amount = active_entry[symbol]['shares'] * sell_price
-        wallet += gained_amount
+        wallet = wallet + gained_amount
+        if not fixed_flag:
+            if pnl < 0:
+                entry_amount = entry_amount - entry_amount * increase_percent/100
 
         sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Stoploss', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount]
         sheet_data.append(sht_data)
@@ -145,8 +151,8 @@ number_of_entry_at_a_time = 0
 
 exclude_symbol = ['MAHINDCIE.NS', 'ORIENTREF.NS', 'PVR.NS', 'WABCOINDIA.NS', 'SRTRANSFIN.NS', 'LTI.NS', 'L&TFH.NS', 'MINDAIND.NS', 'CADILAHC.NS', 'IIFLWAM.NS', 'MOTHERSUMI.NS', 'BURGERKING.NS', 'SUNCLAYLTD.NS', 'SHRIRAMCIT.NS', 'ANGELBRKG.NS', 'WELSPUNIND.NS', 'KALPATPOWR.NS', 'AMARAJABAT.NS', 'HDFC.NS', 'SUPPETRO.NS', 'ADANITRANS.NS', 'PHILIPCARB.NS', 'MINDTREE.NS', 'UJJIVAN.NS', 'TATACOFFEE.NS', 'GODREJCP.NS']
 
-file_name = 'fixed_nifty_50'
-symbol_list_unfiltered = ns.get_nifty50_with_ns()
+file_name = 'fixed_nxt_50'
+symbol_list_unfiltered = ns.get_nifty_next50_with_ns()
 symbol_list = [symbol for symbol in symbol_list_unfiltered if symbol not in exclude_symbol]
 
 multiple_data_frame = yf.download(symbol_list, interval="1d", start='1999-04-01', end='2024-03-31', group_by='ticker', rounding=True)
@@ -184,6 +190,9 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
                 active_entry[symbol]['tr_stoploss'] = multiple_data_frame.iloc[index][symbol]['High'] - multiple_data_frame.iloc[index][symbol]['High'] * 0.05
             wallet, entry_amount = Exit(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
 
+
+stats_sheet_data.append(['Changed to Entry Amount', entry_amount])
+stats_sheet_data.append(['Gained Capital', round(wallet, 2)])
 
 # Create a new Excel workbook
 workbook = openpyxl.Workbook()
@@ -278,8 +287,6 @@ with open(f'{file_name}.csv', mode='r') as csv_file:
                     total_number_of_stoploss += 1
         
 
-    stats_sheet_data.append(['Changed to Entry Amount', entry_amount])
-    stats_sheet_data.append(['Gained Capital', wallet])
     stats_sheet_data.append([' ', ' '])
     stats_sheet_data.append(['All Trade', ' '])
     stats_sheet_data.append(['Total Number of Entry at a Time', number_of_entry_at_a_time])
@@ -288,6 +295,7 @@ with open(f'{file_name}.csv', mode='r') as csv_file:
     stats_sheet_data.append(['Avg Profit/Loss(%)', round(sum(winners+losers)/len(winners+losers), 2)])
     stats_sheet_data.append(['Total Entry', total_entry])
     stats_sheet_data.append(['Total Exit', total_exit])
+    stats_sheet_data.append(['Total Active Entries', total_entry - total_exit])
     stats_sheet_data.append(['Total Number of Win', total_number_of_win])
     stats_sheet_data.append(['Total Number of Loss', total_number_of_loss])
     stats_sheet_data.append(['Total Number of Concutive Win', max(consecutive_win)])

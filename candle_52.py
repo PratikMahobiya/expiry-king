@@ -247,6 +247,7 @@ with open(f'{file_name}.csv', mode='r') as csv_file:
     sheet_data.append(['Avg Profit/Loss(%)', round(sum(winners+losers)/len(winners+losers), 2)])
     sheet_data.append(['Total Entry', total_entry])
     sheet_data.append(['Total Exit', total_exit])
+    sheet_data.append(['Total Active Entries', total_entry - total_exit])
     sheet_data.append(['Total Number of Win', total_number_of_win])
     sheet_data.append(['Total Number of Loss', total_number_of_loss])
     sheet_data.append(['Total Number of Concutive Win', max(consecutive_win)])
