@@ -9,11 +9,12 @@ from niftystocks import ns
 # Screener Constants
 fixed_target = 60           # 60 %
 fixed_stoploss = 15         # 30 %
-number_of_position = 20     # Infinite or fixed
+number_of_position = 10     # Infinite or fixed
 wallet = 100000             # Wallet Balance
-entry_amount = 5000         # per entry
-fixed_flag = True
-increase_percent = 5       # When profit is greater then 10% then only entry amount increased by 5%
+max_entry_amount = 100000   # Max entry Amount
+entry_amount = 10000        # per entry
+fixed_flag = False
+increase_percent = 5        # When profit is greater then 10% then only entry amount increased by 5%
 
 def Entry(date_time, data_frame, symbol, active_entry, wallet, entry_amount, sheet_data):
     fixed_target_price = round(data_frame['Close'] + data_frame['Close']*fixed_target/100, 2)
@@ -78,7 +79,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
     #     gained_amount = active_entry[symbol]['shares'] * sell_price
     #     wallet = wallet + gained_amount
     #     if not fixed_flag:
-    #         if pnl > 10:
+    #         if pnl > 10 and entry_amount <= max_entry_amount:
     #             entry_amount = entry_amount + entry_amount * increase_percent/100
 
     #     sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Target', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount]
@@ -93,7 +94,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
     #     gained_amount = active_entry[symbol]['shares'] * sell_price
     #     wallet = wallet + gained_amount
     #     if not fixed_flag:
-    #         if pnl > 10:
+    #         if pnl > 10 and entry_amount <= max_entry_amount:
     #             entry_amount = entry_amount + entry_amount * increase_percent/100
 
     #     sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Target', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount]
@@ -108,7 +109,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         gained_amount = active_entry[symbol]['shares'] * sell_price
         wallet = wallet + gained_amount
         if not fixed_flag:
-            if pnl > 10:
+            if pnl > 10 and entry_amount <= max_entry_amount:
                 entry_amount = entry_amount + entry_amount * increase_percent/100
 
         sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Tr-Sl', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount]
@@ -151,8 +152,8 @@ number_of_entry_at_a_time = 0
 
 exclude_symbol = ['MAHINDCIE.NS', 'ORIENTREF.NS', 'PVR.NS', 'WABCOINDIA.NS', 'SRTRANSFIN.NS', 'LTI.NS', 'L&TFH.NS', 'MINDAIND.NS', 'CADILAHC.NS', 'IIFLWAM.NS', 'MOTHERSUMI.NS', 'BURGERKING.NS', 'SUNCLAYLTD.NS', 'SHRIRAMCIT.NS', 'ANGELBRKG.NS', 'WELSPUNIND.NS', 'KALPATPOWR.NS', 'AMARAJABAT.NS', 'HDFC.NS', 'SUPPETRO.NS', 'ADANITRANS.NS', 'PHILIPCARB.NS', 'MINDTREE.NS', 'UJJIVAN.NS', 'TATACOFFEE.NS', 'GODREJCP.NS']
 
-file_name = 'fixed_nxt_50'
-symbol_list_unfiltered = ns.get_nifty_next50_with_ns()
+file_name = 'nif_50'
+symbol_list_unfiltered = ns.get_nifty50_with_ns()
 symbol_list = [symbol for symbol in symbol_list_unfiltered if symbol not in exclude_symbol]
 
 multiple_data_frame = yf.download(symbol_list, interval="1d", start='1999-04-01', end='2024-03-31', group_by='ticker', rounding=True)
