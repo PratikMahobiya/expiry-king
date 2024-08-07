@@ -192,8 +192,13 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
             wallet, entry_amount = Exit(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
 
 
+amount_invested = 0
+for i in active_entry:
+    amount_invested = amount_invested + active_entry[i]['invested_amount']
+
 stats_sheet_data.append(['Changed to Entry Amount', entry_amount])
 stats_sheet_data.append(['Gained Capital', round(wallet, 2)])
+stats_sheet_data.append(['Still Invested Amount', round(amount_invested, 2)])
 
 # Create a new Excel workbook
 workbook = openpyxl.Workbook()
