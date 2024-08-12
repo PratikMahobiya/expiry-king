@@ -184,7 +184,7 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
         if len(active_entry) > number_of_entry_at_a_time:
             number_of_entry_at_a_time = len(active_entry)
 
-        if index > 52 and max(multiple_data_frame[symbol]['High'].iloc[index-52:index]) < multiple_data_frame.iloc[index][symbol]['High']:
+        if index > 200 and max(multiple_data_frame[symbol]['High'].iloc[index-52:index]) < multiple_data_frame.iloc[index][symbol]['High'] and max(multiple_data_frame[symbol]['High'].iloc[index-200:index]) < multiple_data_frame.iloc[index][symbol]['High']:
             
             # Take Entry
             if not active_entry.get(symbol):
