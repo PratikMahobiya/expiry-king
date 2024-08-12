@@ -81,38 +81,38 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         sheet_data.append(sht_data)
         del active_entry[symbol]
 
-    # # gapup
-    # elif data_frame['Open'] > active_entry[symbol]['fixed_target']:
-    #     sell_price = data_frame['Open']
-    #     price_diff = sell_price - active_entry[symbol]['price']
-    #     pnl = round((price_diff/active_entry[symbol]['price']) * 100, 2)
-    #     days = (date_time - active_entry[symbol]['datetime']).days
-    #     gained_amount = active_entry[symbol]['shares'] * sell_price
-    #     actual_amount = gained_amount - active_entry[symbol]['invested_amount']
-    #     wallet = wallet + gained_amount
-    #     if not fixed_entry_flag:
-    #         if pnl > 10 and entry_amount <= max_entry_amount:
-    #             entry_amount = entry_amount + entry_amount * increase_percent/100
+    # gapup
+    elif data_frame['Open'] > active_entry[symbol]['fixed_target']:
+        sell_price = data_frame['Open']
+        price_diff = sell_price - active_entry[symbol]['price']
+        pnl = round((price_diff/active_entry[symbol]['price']) * 100, 2)
+        days = (date_time - active_entry[symbol]['datetime']).days
+        gained_amount = active_entry[symbol]['shares'] * sell_price
+        actual_amount = gained_amount - active_entry[symbol]['invested_amount']
+        wallet = wallet + gained_amount
+        if not fixed_entry_flag:
+            if pnl > 10 and entry_amount <= max_entry_amount:
+                entry_amount = entry_amount + entry_amount * increase_percent/100
 
-    #     sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Target', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount, actual_amount, len(active_entry) - 1]
-    #     sheet_data.append(sht_data)
-    #     del active_entry[symbol]
+        sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Target', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount, actual_amount, len(active_entry) - 1]
+        sheet_data.append(sht_data)
+        del active_entry[symbol]
 
-    # elif data_frame['High'] > active_entry[symbol]['fixed_target']:
-    #     sell_price = active_entry[symbol]['fixed_target']
-    #     price_diff = sell_price - active_entry[symbol]['price']
-    #     pnl = round((price_diff/active_entry[symbol]['price']) * 100, 2)
-    #     days = (date_time - active_entry[symbol]['datetime']).days
-    #     gained_amount = active_entry[symbol]['shares'] * sell_price
-    #     actual_amount = gained_amount - active_entry[symbol]['invested_amount']
-    #     wallet = wallet + gained_amount
-    #     if not fixed_entry_flag:
-    #         if pnl > 10 and entry_amount <= max_entry_amount:
-    #             entry_amount = entry_amount + entry_amount * increase_percent/100
+    elif data_frame['High'] > active_entry[symbol]['fixed_target']:
+        sell_price = active_entry[symbol]['fixed_target']
+        price_diff = sell_price - active_entry[symbol]['price']
+        pnl = round((price_diff/active_entry[symbol]['price']) * 100, 2)
+        days = (date_time - active_entry[symbol]['datetime']).days
+        gained_amount = active_entry[symbol]['shares'] * sell_price
+        actual_amount = gained_amount - active_entry[symbol]['invested_amount']
+        wallet = wallet + gained_amount
+        if not fixed_entry_flag:
+            if pnl > 10 and entry_amount <= max_entry_amount:
+                entry_amount = entry_amount + entry_amount * increase_percent/100
 
-    #     sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Target', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount, actual_amount, len(active_entry) - 1]
-    #     sheet_data.append(sht_data)
-    #     del active_entry[symbol]
+        sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Target', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount, actual_amount, len(active_entry) - 1]
+        sheet_data.append(sht_data)
+        del active_entry[symbol]
     
     elif active_entry[symbol]['tr_sl'] and data_frame['Low'] < active_entry[symbol]['tr_stoploss']:
         sell_price = active_entry[symbol]['tr_stoploss']
@@ -170,8 +170,8 @@ min_portfolio_change = 0
 
 exclude_symbol = ['MAHINDCIE.NS', 'ORIENTREF.NS', 'PVR.NS', 'WABCOINDIA.NS', 'SRTRANSFIN.NS', 'LTI.NS', 'L&TFH.NS', 'MINDAIND.NS', 'CADILAHC.NS', 'IIFLWAM.NS', 'MOTHERSUMI.NS', 'BURGERKING.NS', 'SUNCLAYLTD.NS', 'SHRIRAMCIT.NS', 'ANGELBRKG.NS', 'WELSPUNIND.NS', 'KALPATPOWR.NS', 'AMARAJABAT.NS', 'HDFC.NS', 'SUPPETRO.NS', 'ADANITRANS.NS', 'PHILIPCARB.NS', 'MINDTREE.NS', 'UJJIVAN.NS', 'TATACOFFEE.NS', 'GODREJCP.NS']
 
-file_name = 'nif_50'
-symbol_list_unfiltered = ns.get_nifty50_with_ns()
+file_name = 'V1_nif_200'
+symbol_list_unfiltered = ns.get_nifty200_with_ns()
 symbol_list = [symbol for symbol in symbol_list_unfiltered if symbol not in exclude_symbol]
 
 multiple_data_frame = yf.download(symbol_list, interval="1d", start='1999-04-01', end='2024-03-31', group_by='ticker', rounding=True)
@@ -215,8 +215,8 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
     
     # Get Portfolio Value change
     change = 0
-    for key, value in active_entry.values():
-        change += value['change_in_investment']
+    for i in active_entry:
+        change += active_entry[i]['change_in_investment']
     
     if change > max_portfolio_change:
         max_portfolio_change = change
