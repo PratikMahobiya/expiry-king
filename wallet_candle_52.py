@@ -168,9 +168,9 @@ number_of_entry_at_a_time = 0
 max_portfolio_change = 0
 min_portfolio_change = 0
 
-exclude_symbol = ['MAHINDCIE.NS', 'ORIENTREF.NS', 'PVR.NS', 'WABCOINDIA.NS', 'SRTRANSFIN.NS', 'LTI.NS', 'L&TFH.NS', 'MINDAIND.NS', 'CADILAHC.NS', 'IIFLWAM.NS', 'MOTHERSUMI.NS', 'BURGERKING.NS', 'SUNCLAYLTD.NS', 'SHRIRAMCIT.NS', 'ANGELBRKG.NS', 'WELSPUNIND.NS', 'KALPATPOWR.NS', 'AMARAJABAT.NS', 'HDFC.NS', 'SUPPETRO.NS', 'ADANITRANS.NS', 'PHILIPCARB.NS', 'MINDTREE.NS', 'UJJIVAN.NS', 'TATACOFFEE.NS', 'GODREJCP.NS', 'MCDOWELL-N.NS']
+exclude_symbol = ['MAHINDCIE.NS', 'ORIENTREF.NS', 'PVR.NS', 'WABCOINDIA.NS', 'SRTRANSFIN.NS', 'LTI.NS', 'L&TFH.NS', 'MINDAIND.NS', 'CADILAHC.NS', 'IIFLWAM.NS', 'MOTHERSUMI.NS', 'BURGERKING.NS', 'SUNCLAYLTD.NS', 'SHRIRAMCIT.NS', 'ANGELBRKG.NS', 'WELSPUNIND.NS', 'KALPATPOWR.NS', 'AMARAJABAT.NS', 'HDFC.NS', 'SUPPETRO.NS', 'ADANITRANS.NS', 'PHILIPCARB.NS', 'MINDTREE.NS', 'UJJIVAN.NS', 'TATACOFFEE.NS', 'GODREJCP.NS', 'MCDOWELL-N.NS', 'AEGISCHEM.NS']
 
-file_name = 'V1_nif_200'
+file_name = 'V1_nif'
 symbol_list_unfiltered = ns.get_nifty200_with_ns()
 symbol_list = [symbol for symbol in symbol_list_unfiltered if symbol not in exclude_symbol]
 
@@ -332,7 +332,7 @@ with open(f'{file_name}.csv', mode='r') as csv_file:
     stats_sheet_data.append(['All Trade', ' '])
     stats_sheet_data.append(['Total Number of Entry at a Time', number_of_entry_at_a_time])
     stats_sheet_data.append(['Entry Stays(Days/Bars)', entry_stays_days_bars])
-    stats_sheet_data.append(['Total Profit/Loss(%)', round(get_change(wallet, initial_wallet), 2)])
+    stats_sheet_data.append(['Total Profit/Loss(%)', round(get_change(wallet+amount_invested, initial_wallet), 2)])
     stats_sheet_data.append(['Avg Profit/Loss(%)', round(sum(winners+losers)/len(winners+losers), 2)])
     stats_sheet_data.append(['Total Entry', total_entry])
     stats_sheet_data.append(['Total Exit', total_exit])
