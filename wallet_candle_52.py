@@ -13,9 +13,12 @@ number_of_position = 20     # Infinite or fixed
 wallet = 200000             # Wallet Balance
 max_entry_amount = 100000   # Max entry Amount
 entry_amount = 10000        # per entry
+increase_percent = 5        # When profit is greater then 10% then only entry amount increased by 5%
 fixed_entry_amount_flag = False
 fixed_target_flag = True
-increase_percent = 5        # When profit is greater then 10% then only entry amount increased by 5%
+
+file_name = 'V1_n'
+symbol_list_unfiltered = ns.get_nifty200_with_ns()
 
 def get_change(current, previous):
     if current == previous:
@@ -171,8 +174,6 @@ min_portfolio_change = 0
 
 exclude_symbol = ['MAHINDCIE.NS', 'ORIENTREF.NS', 'PVR.NS', 'WABCOINDIA.NS', 'SRTRANSFIN.NS', 'LTI.NS', 'L&TFH.NS', 'MINDAIND.NS', 'CADILAHC.NS', 'IIFLWAM.NS', 'MOTHERSUMI.NS', 'BURGERKING.NS', 'SUNCLAYLTD.NS', 'SHRIRAMCIT.NS', 'ANGELBRKG.NS', 'WELSPUNIND.NS', 'KALPATPOWR.NS', 'AMARAJABAT.NS', 'HDFC.NS', 'SUPPETRO.NS', 'ADANITRANS.NS', 'PHILIPCARB.NS', 'MINDTREE.NS', 'UJJIVAN.NS', 'TATACOFFEE.NS', 'GODREJCP.NS', 'MCDOWELL-N.NS', 'AEGISCHEM.NS']
 
-file_name = 'V1_nif'
-symbol_list_unfiltered = ns.get_nifty200_with_ns()
 symbol_list = [symbol for symbol in symbol_list_unfiltered if symbol not in exclude_symbol]
 
 multiple_data_frame = yf.download(symbol_list, interval="1d", start='1999-04-01', end='2024-03-31', group_by='ticker', rounding=True)
@@ -339,9 +340,9 @@ with open(f'{file_name}.csv', mode='r') as csv_file:
     stats_sheet_data.append(['Total Exit', total_exit])
     stats_sheet_data.append(['Total Active Entries', total_entry - total_exit])
     stats_sheet_data.append(['Total Number of Win', total_number_of_win])
-    stats_sheet_data.append(['Total Win %', round(get_change(total_exit, total_number_of_win), 2)])
+    stats_sheet_data.append(['Total Win %', round((total_number_of_win/total_exit)*100, 2)])
     stats_sheet_data.append(['Total Number of Loss', total_number_of_loss])
-    stats_sheet_data.append(['Total Loss %', round(get_change(total_exit, total_number_of_loss), 2)])
+    stats_sheet_data.append(['Total Loss %', round((total_number_of_loss/total_exit)*100, 2)])
     stats_sheet_data.append(['Total Number of Concutive Win', max(consecutive_win)])
     stats_sheet_data.append(['Total Number of Concutive Loss', max(consecutive_loss)])
     stats_sheet_data.append(['Total Number of Target', total_number_of_targets])
