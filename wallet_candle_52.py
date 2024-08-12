@@ -14,6 +14,7 @@ wallet = 200000             # Wallet Balance
 max_entry_amount = 100000   # Max entry Amount
 entry_amount = 10000        # per entry
 fixed_entry_amount_flag = False
+fixed_target_flag = True
 increase_percent = 5        # When profit is greater then 10% then only entry amount increased by 5%
 
 def get_change(current, previous):
@@ -82,7 +83,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         del active_entry[symbol]
 
     # gapup
-    elif data_frame['Open'] > active_entry[symbol]['fixed_target']:
+    elif data_frame['Open'] > active_entry[symbol]['fixed_target'] and fixed_target_flag:
         sell_price = data_frame['Open']
         price_diff = sell_price - active_entry[symbol]['price']
         pnl = round((price_diff/active_entry[symbol]['price']) * 100, 2)
@@ -98,7 +99,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         sheet_data.append(sht_data)
         del active_entry[symbol]
 
-    elif data_frame['High'] > active_entry[symbol]['fixed_target']:
+    elif data_frame['High'] > active_entry[symbol]['fixed_target'] and fixed_target_flag:
         sell_price = active_entry[symbol]['fixed_target']
         price_diff = sell_price - active_entry[symbol]['price']
         pnl = round((price_diff/active_entry[symbol]['price']) * 100, 2)
