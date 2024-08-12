@@ -13,7 +13,7 @@ number_of_position = 20     # Infinite or fixed
 wallet = 200000             # Wallet Balance
 max_entry_amount = 100000   # Max entry Amount
 entry_amount = 10000        # per entry
-fixed_entry_flag = False
+fixed_entry_amount_flag = False
 increase_percent = 5        # When profit is greater then 10% then only entry amount increased by 5%
 
 def get_change(current, previous):
@@ -72,7 +72,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         gained_amount = active_entry[symbol]['shares'] * sell_price
         actual_amount = gained_amount - active_entry[symbol]['invested_amount']
         wallet = wallet + gained_amount
-        if not fixed_entry_flag:
+        if not fixed_entry_amount_flag:
             if pnl < 0:
                 entry_amount = entry_amount - entry_amount * increase_percent/100
         
@@ -90,7 +90,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         gained_amount = active_entry[symbol]['shares'] * sell_price
         actual_amount = gained_amount - active_entry[symbol]['invested_amount']
         wallet = wallet + gained_amount
-        if not fixed_entry_flag:
+        if not fixed_entry_amount_flag:
             if pnl > 10 and entry_amount <= max_entry_amount:
                 entry_amount = entry_amount + entry_amount * increase_percent/100
 
@@ -106,7 +106,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         gained_amount = active_entry[symbol]['shares'] * sell_price
         actual_amount = gained_amount - active_entry[symbol]['invested_amount']
         wallet = wallet + gained_amount
-        if not fixed_entry_flag:
+        if not fixed_entry_amount_flag:
             if pnl > 10 and entry_amount <= max_entry_amount:
                 entry_amount = entry_amount + entry_amount * increase_percent/100
 
@@ -122,7 +122,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         gained_amount = active_entry[symbol]['shares'] * sell_price
         actual_amount = gained_amount - active_entry[symbol]['invested_amount']
         wallet = wallet + gained_amount
-        if not fixed_entry_flag:
+        if not fixed_entry_amount_flag:
             if pnl > 10 and entry_amount <= max_entry_amount:
                 entry_amount = entry_amount + entry_amount * increase_percent/100
 
@@ -139,7 +139,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         gained_amount = active_entry[symbol]['shares'] * sell_price
         actual_amount = gained_amount - active_entry[symbol]['invested_amount']
         wallet = wallet + gained_amount
-        if not fixed_entry_flag:
+        if not fixed_entry_amount_flag:
             if pnl < 0:
                 entry_amount = entry_amount - entry_amount * increase_percent/100
 
