@@ -33,7 +33,7 @@ def Entry(date_time, data_frame, symbol, active_entry, wallet, entry_amount, she
     fixed_target_price = round(data_frame['Close'] + data_frame['Close']*fixed_target/100, 2)
     fixed_stoploss_price = round(data_frame['Close'] - data_frame['Close']*fixed_stoploss/100, 2)
 
-    if entry_amount > data_frame['Close'] and len(active_entry) < number_of_position:
+    if entry_amount > data_frame['Close']:
         invested_amount = 0
         shares = 0
         while True:
@@ -184,15 +184,12 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
         if len(active_entry) > number_of_entry_at_a_time:
             number_of_entry_at_a_time = len(active_entry)
 
-        if index > 52 and max(multiple_data_frame[symbol]['High'].iloc[index-52:index]) < multiple_data_frame.iloc[index][symbol]['High']:
-            
-            # Take Entry
-            if not active_entry.get(symbol):
-                wallet, entry_amount = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
-                break
+        # Take Entry
+        if index > 52 and not active_entry.get(symbol) and len(active_entry) < number_of_position and max(multiple_data_frame[symbol]['High'].iloc[index-52:index]) < multiple_data_frame.iloc[index][symbol]['High']:
+            wallet, entry_amount = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
         
         # Take Exit
-        if active_entry.get(symbol) and active_entry.get(symbol).get('buy'):
+        elif active_entry.get(symbol) and active_entry.get(symbol).get('buy'):
             high_price_diff = multiple_data_frame.iloc[index][symbol]['High'] - active_entry[symbol]['price']
             high_pnl = round((high_price_diff/active_entry[symbol]['price']) * 100, 2)
             low_price_diff = multiple_data_frame.iloc[index][symbol]['Low'] - active_entry[symbol]['price']
