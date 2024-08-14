@@ -162,7 +162,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
 
 # Screener Variable
 sheet_data = [
-    ['Year', 'Month', 'Datetime', 'Symbol', 'Indicate', 'Type', 'Price', 'Target', 'Stoploss', 'Tr-Stoploss', 'PriceDifference', 'PnL(%)', 'Max High(%)', 'Max Low(%)', 'Entry-Stays(days)', 'No of shares', 'Invested AMT', 'Gained AMT', 'Actual Gain', 'Current Open Entry']
+    ['Year', 'Month', 'Datetime', 'Symbol', 'Indicate', 'Type', 'Price', 'Target', 'Stoploss', 'Tr-Stoploss', 'PriceDifference', 'PnL(%)', 'Max High(%)', 'Max Low(%)', 'Entry-Stays(days)', 'No of shares', 'Invested AMT', 'Gained AMT', 'Actual Gain', 'Current Open Entry', 'Wallet', 'Entry Amount']
 ]
 # Screener Variable
 stats_sheet_data = [
