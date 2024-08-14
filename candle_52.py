@@ -20,6 +20,13 @@ fixed_target_flag = True
 file_name = 'V1_n'
 symbol_list_unfiltered = ns.get_nifty200_with_ns()
 
+
+exclude_symbol = ['MAHINDCIE.NS', 'ORIENTREF.NS', 'PVR.NS', 'WABCOINDIA.NS', 'SRTRANSFIN.NS', 'LTI.NS', 'L&TFH.NS', 'MINDAIND.NS', 'CADILAHC.NS', 'IIFLWAM.NS', 'MOTHERSUMI.NS', 'BURGERKING.NS', 'SUNCLAYLTD.NS', 'SHRIRAMCIT.NS', 'ANGELBRKG.NS', 'WELSPUNIND.NS', 'KALPATPOWR.NS', 'AMARAJABAT.NS', 'HDFC.NS', 'SUPPETRO.NS', 'ADANITRANS.NS', 'PHILIPCARB.NS', 'MINDTREE.NS', 'UJJIVAN.NS', 'TATACOFFEE.NS', 'GODREJCP.NS', 'MCDOWELL-N.NS', 'AEGISCHEM.NS']
+
+symbol_list = [symbol for symbol in symbol_list_unfiltered if symbol not in exclude_symbol]
+
+multiple_data_frame = yf.download(symbol_list, interval="1d", start='1999-04-01', end='2024-03-31', group_by='ticker', rounding=True)
+
 def get_change(current, previous):
     if current == previous:
         return 0
@@ -171,13 +178,6 @@ high_dict = {}
 number_of_entry_at_a_time = 0
 max_portfolio_change = 0
 min_portfolio_change = 0
-
-exclude_symbol = ['MAHINDCIE.NS', 'ORIENTREF.NS', 'PVR.NS', 'WABCOINDIA.NS', 'SRTRANSFIN.NS', 'LTI.NS', 'L&TFH.NS', 'MINDAIND.NS', 'CADILAHC.NS', 'IIFLWAM.NS', 'MOTHERSUMI.NS', 'BURGERKING.NS', 'SUNCLAYLTD.NS', 'SHRIRAMCIT.NS', 'ANGELBRKG.NS', 'WELSPUNIND.NS', 'KALPATPOWR.NS', 'AMARAJABAT.NS', 'HDFC.NS', 'SUPPETRO.NS', 'ADANITRANS.NS', 'PHILIPCARB.NS', 'MINDTREE.NS', 'UJJIVAN.NS', 'TATACOFFEE.NS', 'GODREJCP.NS', 'MCDOWELL-N.NS', 'AEGISCHEM.NS']
-
-symbol_list = [symbol for symbol in symbol_list_unfiltered if symbol not in exclude_symbol]
-
-multiple_data_frame = yf.download(symbol_list, interval="1d", start='1999-04-01', end='2024-03-31', group_by='ticker', rounding=True)
-
 
 for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
     for symbol in symbol_list:
