@@ -40,7 +40,7 @@ def Entry(date_time, data_frame, symbol, active_entry, wallet, entry_amount, she
     fixed_target_price = round(data_frame['Close'] + data_frame['Close']*fixed_target/100, 2)
     fixed_stoploss_price = round(data_frame['Close'] - data_frame['Close']*fixed_stoploss/100, 2)
 
-    if entry_amount > data_frame['Close']:
+    if entry_amount > data_frame['Close'] and wallet > entry_amount:
         invested_amount = 0
         shares = 0
         while True:
