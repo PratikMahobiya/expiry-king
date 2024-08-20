@@ -17,7 +17,7 @@ increase_percent = 5        # When profit is greater then 10% then only entry am
 fixed_entry_amount_flag = False
 fixed_target_flag = True
 
-file_name = 'ma200_6D-sl'
+file_name = 'v15_n'
 symbol_list_unfiltered = ns.get_nifty200_with_ns()
 
 
@@ -103,7 +103,8 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         wallet = wallet + gained_amount
         if not fixed_entry_amount_flag:
             if pnl > 10 and entry_amount <= max_entry_amount:
-                entry_amount = entry_amount + entry_amount * increase_percent/100
+                if wallet > entry_amount + entry_amount * increase_percent/100:
+                    entry_amount = entry_amount + entry_amount * increase_percent/100
 
         sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Target', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount, actual_amount, len(active_entry) - 1, wallet, entry_amount]
         sheet_data.append(sht_data)
@@ -119,7 +120,8 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         wallet = wallet + gained_amount
         if not fixed_entry_amount_flag:
             if pnl > 10 and entry_amount <= max_entry_amount:
-                entry_amount = entry_amount + entry_amount * increase_percent/100
+                if wallet > entry_amount + entry_amount * increase_percent/100:
+                    entry_amount = entry_amount + entry_amount * increase_percent/100
 
         sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Target', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount, actual_amount, len(active_entry) - 1, wallet, entry_amount]
         sheet_data.append(sht_data)
@@ -135,7 +137,8 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         wallet = wallet + gained_amount
         if not fixed_entry_amount_flag:
             if pnl > 10 and entry_amount <= max_entry_amount:
-                entry_amount = entry_amount + entry_amount * increase_percent/100
+                if wallet > entry_amount + entry_amount * increase_percent/100:
+                    entry_amount = entry_amount + entry_amount * increase_percent/100
 
         sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Tr-Sl', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount, actual_amount, len(active_entry) - 1, wallet, entry_amount]
         sheet_data.append(sht_data)
