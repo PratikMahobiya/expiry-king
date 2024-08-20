@@ -67,7 +67,7 @@ def Entry(date_time, data_frame, symbol, active_entry, wallet, entry_amount, she
         }
         sht_data = [date_time.year, date_time.month, date_time, symbol, 'Entry', 'Buy', active_entry[symbol]['price'], active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], '', '', '', '', '', active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], '', '', len(active_entry), wallet, entry_amount]
         sheet_data.append(sht_data)
-    return wallet, entry_amount
+    return wallet, entry_amount, active_entry
 
 
 def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, sheet_data):
@@ -157,7 +157,7 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Stoploss', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount, actual_amount, len(active_entry) - 1, wallet, entry_amount]
         sheet_data.append(sht_data)
         del active_entry[symbol]
-    return wallet, entry_amount
+    return wallet, entry_amount, active_entry
 
 
 # Screener Variable
@@ -186,7 +186,7 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
 
         # Take Entry
         if index > 52 and not active_entry.get(symbol) and len(active_entry) < number_of_position and max(multiple_data_frame[symbol]['High'].iloc[index-52:index]) < multiple_data_frame.iloc[index][symbol]['High']:
-            wallet, entry_amount = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
+            wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
         
         # Take Exit
         elif active_entry.get(symbol) and active_entry.get(symbol).get('buy'):
@@ -210,7 +210,7 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
             elif high_pnl > fixed_target:
                 active_entry[symbol]['tr_sl'] = True
                 active_entry[symbol]['tr_stoploss'] = multiple_data_frame.iloc[index][symbol]['High'] - multiple_data_frame.iloc[index][symbol]['High'] * 0.05
-            wallet, entry_amount = Exit(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
+            wallet, entry_amount, active_entry = Exit(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
     
     # Get Portfolio Value change
     change = 0
