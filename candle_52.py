@@ -17,7 +17,7 @@ increase_percent = 5        # When profit is greater then 10% then only entry am
 fixed_entry_amount_flag = False
 fixed_target_flag = True
 
-file_name = 'V1_n'
+file_name = 'V2_n'
 symbol_list_unfiltered = ns.get_nifty200_with_ns()
 
 
