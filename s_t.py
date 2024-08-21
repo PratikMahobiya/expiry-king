@@ -81,7 +81,7 @@ def Entry(date_time, data_frame, symbol, active_entry, wallet, entry_amount, she
 
 def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, sheet_data, super_trend):
 
-    # gapup
+    # indicator exit
     if data_frame['High'] < super_trend.iloc[-1]:
         sell_price = data_frame['Close']
         price_diff = sell_price - active_entry[symbol]['price']
