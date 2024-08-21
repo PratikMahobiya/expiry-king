@@ -27,7 +27,7 @@ exclude_symbol = ['MAHINDCIE.NS', 'ORIENTREF.NS', 'PVR.NS', 'WABCOINDIA.NS', 'SR
 
 symbol_list = [symbol for symbol in symbol_list_unfiltered if symbol not in exclude_symbol]
 
-multiple_data_frame = yf.download(symbol_list, interval="1d", start='1999-04-01', end='2024-03-31', group_by='ticker', rounding=True)
+multiple_data_frame = yf.download(symbol_list, interval="1d", start='2013-04-01', end='2024-03-31', group_by='ticker', rounding=True)
 
 def SUPER_TREND(high, low, close, length, multiplier):
     return ta.supertrend(high=high,
