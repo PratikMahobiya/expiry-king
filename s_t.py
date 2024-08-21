@@ -19,14 +19,14 @@ fixed_entry_amount_flag = False
 fixed_target_flag = True
 
 file_name = 'V1_n'
-symbol_list_unfiltered = ns.get_nifty200_with_ns()
+symbol_list_unfiltered = ns.get_nifty50_with_ns()
 
 
 exclude_symbol = ['MAHINDCIE.NS', 'ORIENTREF.NS', 'PVR.NS', 'WABCOINDIA.NS', 'SRTRANSFIN.NS', 'LTI.NS', 'L&TFH.NS', 'MINDAIND.NS', 'CADILAHC.NS', 'IIFLWAM.NS', 'MOTHERSUMI.NS', 'BURGERKING.NS', 'SUNCLAYLTD.NS', 'SHRIRAMCIT.NS', 'ANGELBRKG.NS', 'WELSPUNIND.NS', 'KALPATPOWR.NS', 'AMARAJABAT.NS', 'HDFC.NS', 'SUPPETRO.NS', 'ADANITRANS.NS', 'PHILIPCARB.NS', 'MINDTREE.NS', 'UJJIVAN.NS', 'TATACOFFEE.NS', 'GODREJCP.NS', 'MCDOWELL-N.NS', 'AEGISCHEM.NS']
 
 symbol_list = [symbol for symbol in symbol_list_unfiltered if symbol not in exclude_symbol]
 
-multiple_data_frame = yf.download(symbol_list, interval="1d", start='2013-04-01', end='2024-03-31', group_by='ticker', rounding=True)
+multiple_data_frame = yf.download(symbol_list, interval="1d", start='1999-04-01', end='2024-03-31', group_by='ticker', rounding=True)
 
 def SUPER_TREND(high, low, close, length, multiplier):
     return ta.supertrend(high=high,
@@ -225,7 +225,7 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
 
         # Take Entry
         if not active_entry.get(symbol) and len(active_entry) < number_of_position:
-            super_trend = SUPER_TREND(high=multiple_data_frame.iloc[:index][symbol]['High'], low=multiple_data_frame.iloc[:index][symbol]['Low'], close=multiple_data_frame.iloc[:index][symbol]['Close'], length=10, multiplier=3)
+            super_trend = SUPER_TREND(high=multiple_data_frame.iloc[index-52:index][symbol]['High'], low=multiple_data_frame.iloc[index-52:index][symbol]['Low'], close=multiple_data_frame.iloc[index-52:index][symbol]['Close'], length=10, multiplier=3)
             if multiple_data_frame.iloc[index][symbol]['Low'] > super_trend.iloc[-1] and multiple_data_frame.iloc[index-1][symbol]['Close'] < super_trend.iloc[-2]:
                 wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)           
         
