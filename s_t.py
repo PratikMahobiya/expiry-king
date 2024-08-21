@@ -19,8 +19,8 @@ fixed_entry_amount_flag = False
 fixed_target_flag = True
 indicator_exit = True
 
-file_name = 'V1_n'
-symbol_list_unfiltered = ns.get_nifty50_with_ns()
+file_name = 'V2_n'
+symbol_list_unfiltered = ns.get_nifty200_with_ns()
 
 
 exclude_symbol = ['MAHINDCIE.NS', 'ORIENTREF.NS', 'PVR.NS', 'WABCOINDIA.NS', 'SRTRANSFIN.NS', 'LTI.NS', 'L&TFH.NS', 'MINDAIND.NS', 'CADILAHC.NS', 'IIFLWAM.NS', 'MOTHERSUMI.NS', 'BURGERKING.NS', 'SUNCLAYLTD.NS', 'SHRIRAMCIT.NS', 'ANGELBRKG.NS', 'WELSPUNIND.NS', 'KALPATPOWR.NS', 'AMARAJABAT.NS', 'HDFC.NS', 'SUPPETRO.NS', 'ADANITRANS.NS', 'PHILIPCARB.NS', 'MINDTREE.NS', 'UJJIVAN.NS', 'TATACOFFEE.NS', 'GODREJCP.NS', 'MCDOWELL-N.NS', 'AEGISCHEM.NS']
