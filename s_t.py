@@ -224,9 +224,10 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
             break
 
         # Take Entry
-        super_trend = SUPER_TREND(high=multiple_data_frame.iloc[:index][symbol]['High'], low=multiple_data_frame.iloc[:index][symbol]['Low'], close=multiple_data_frame.iloc[:index][symbol]['Close'], length=10, multiplier=3)
-        if not active_entry.get(symbol) and len(active_entry) < number_of_position and multiple_data_frame.iloc[index][symbol]['Low'] > super_trend.iloc[-1] and multiple_data_frame.iloc[index-1][symbol]['Close'] < super_trend.iloc[-2]:
-            wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)           
+        if not active_entry.get(symbol) and len(active_entry) < number_of_position:
+            super_trend = SUPER_TREND(high=multiple_data_frame.iloc[:index][symbol]['High'], low=multiple_data_frame.iloc[:index][symbol]['Low'], close=multiple_data_frame.iloc[:index][symbol]['Close'], length=10, multiplier=3)
+            if multiple_data_frame.iloc[index][symbol]['Low'] > super_trend.iloc[-1] and multiple_data_frame.iloc[index-1][symbol]['Close'] < super_trend.iloc[-2]:
+                wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)           
         
     
     # Get Portfolio Value change
