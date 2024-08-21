@@ -79,11 +79,28 @@ def Entry(date_time, data_frame, symbol, active_entry, wallet, entry_amount, she
     return wallet, entry_amount, active_entry
 
 
-def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, sheet_data):
+def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, sheet_data, super_trend):
 
-    
+    # gapup
+    if data_frame['High'] < super_trend.iloc[-1]:
+        sell_price = data_frame['Close']
+        price_diff = sell_price - active_entry[symbol]['price']
+        pnl = round((price_diff/active_entry[symbol]['price']) * 100, 2)
+        days = (date_time - active_entry[symbol]['datetime']).days
+        gained_amount = active_entry[symbol]['shares'] * sell_price
+        actual_amount = gained_amount - active_entry[symbol]['invested_amount']
+        wallet = wallet + gained_amount
+        if not fixed_entry_amount_flag:
+            if pnl > 10 and entry_amount <= max_entry_amount:
+                if wallet > (entry_amount + entry_amount * increase_percent/100)*3:
+                    entry_amount = entry_amount + entry_amount * increase_percent/100
+
+        sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Ind-Exit', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount, actual_amount, len(active_entry) - 1, wallet, entry_amount]
+        sheet_data.append(sht_data)
+        del active_entry[symbol]
+
     # gapdown
-    if data_frame['Open'] < active_entry[symbol]['fixed_stoploss']:
+    elif data_frame['Open'] < active_entry[symbol]['fixed_stoploss']:
         sell_price = data_frame['Open']
         price_diff = sell_price - active_entry[symbol]['price']
         pnl = round((price_diff/active_entry[symbol]['price']) * 100, 2)
@@ -198,8 +215,13 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
         if len(active_entry) > number_of_entry_at_a_time:
             number_of_entry_at_a_time = len(active_entry)
 
+        # Take Entry
+        super_trend = SUPER_TREND(high=multiple_data_frame.iloc[index-52:index][symbol]['High'], low=multiple_data_frame.iloc[index-52:index][symbol]['Low'], close=multiple_data_frame.iloc[index-52:index][symbol]['Close'], length=10, multiplier=3)
+        if not active_entry.get(symbol) and len(active_entry) < number_of_position and multiple_data_frame.iloc[index][symbol]['Low'] > super_trend.iloc[-1] and multiple_data_frame.iloc[index-1][symbol]['Close'] < super_trend.iloc[-2]:
+            wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
+          
         # Take Exit
-        if active_entry.get(symbol) and active_entry.get(symbol).get('buy'):
+        elif active_entry.get(symbol) and active_entry.get(symbol).get('buy'):
             high_price_diff = multiple_data_frame.iloc[index][symbol]['High'] - active_entry[symbol]['price']
             high_pnl = round((high_price_diff/active_entry[symbol]['price']) * 100, 2)
             low_price_diff = multiple_data_frame.iloc[index][symbol]['Low'] - active_entry[symbol]['price']
@@ -220,15 +242,7 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
             elif high_pnl > fixed_target:
                 active_entry[symbol]['tr_sl'] = True
                 active_entry[symbol]['tr_stoploss'] = multiple_data_frame.iloc[index][symbol]['High'] - multiple_data_frame.iloc[index][symbol]['High'] * 0.05
-            wallet, entry_amount, active_entry = Exit(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
-            break
-
-        # Take Entry
-        if not active_entry.get(symbol) and len(active_entry) < number_of_position:
-            super_trend = SUPER_TREND(high=multiple_data_frame.iloc[index-52:index][symbol]['High'], low=multiple_data_frame.iloc[index-52:index][symbol]['Low'], close=multiple_data_frame.iloc[index-52:index][symbol]['Close'], length=10, multiplier=3)
-            if multiple_data_frame.iloc[index][symbol]['Low'] > super_trend.iloc[-1] and multiple_data_frame.iloc[index-1][symbol]['Close'] < super_trend.iloc[-2]:
-                wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)           
-        
+            wallet, entry_amount, active_entry = Exit(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data, super_trend)
     
     # Get Portfolio Value change
     change = 0
@@ -298,6 +312,7 @@ with open(f'{file_name}.csv', mode='r') as csv_file:
     total_number_of_targets = 0
     total_number_of_stoploss = 0
     total_number_of_trsl = 0
+    total_number_of_ind_exit = 0
     entry_stays_days_bars = 0
     
     csv_reader = csv.DictReader(csv_file)
@@ -312,6 +327,8 @@ with open(f'{file_name}.csv', mode='r') as csv_file:
             if float(row['Entry-Stays(days)']) > entry_stays_days_bars:
                 entry_stays_days_bars = float(row['Entry-Stays(days)'])
             total_exit += 1
+            if row_data['Type'] == 'Ind-Exit':
+                total_number_of_ind_exit += 1
 
 
         if row_data['PnL(%)'] not in ['', ' ', None]:
@@ -360,6 +377,7 @@ with open(f'{file_name}.csv', mode='r') as csv_file:
     stats_sheet_data.append(['Total Loss %', round((total_number_of_loss/total_exit)*100, 2)])
     stats_sheet_data.append(['Total Number of Concutive Win', max(consecutive_win)])
     stats_sheet_data.append(['Total Number of Concutive Loss', max(consecutive_loss)])
+    stats_sheet_data.append(['Total Number of Ind-Exit', total_number_of_ind_exit])
     stats_sheet_data.append(['Total Number of Target', total_number_of_targets])
     stats_sheet_data.append(['Total Number of Tr-Sl', total_number_of_trsl])
     stats_sheet_data.append(['Total Number of Stoploss', total_number_of_stoploss])
