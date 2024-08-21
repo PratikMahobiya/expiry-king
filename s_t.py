@@ -17,6 +17,7 @@ entry_amount = 10000        # per entry
 increase_percent = 5        # When profit is greater then 10% then only entry amount increased by 5%
 fixed_entry_amount_flag = False
 fixed_target_flag = True
+indicator_exit = True
 
 file_name = 'V1_n'
 symbol_list_unfiltered = ns.get_nifty50_with_ns()
@@ -82,7 +83,7 @@ def Entry(date_time, data_frame, symbol, active_entry, wallet, entry_amount, she
 def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, sheet_data, super_trend):
 
     # indicator exit
-    if data_frame['High'] < super_trend.iloc[-1]:
+    if data_frame['High'] < super_trend.iloc[-1] and indicator_exit:
         sell_price = data_frame['Close']
         price_diff = sell_price - active_entry[symbol]['price']
         pnl = round((price_diff/active_entry[symbol]['price']) * 100, 2)
