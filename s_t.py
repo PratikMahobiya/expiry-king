@@ -200,7 +200,7 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
 
         # Take Entry
         super_trend = SUPER_TREND(high=multiple_data_frame.iloc[:index][symbol]['High'], low=multiple_data_frame.iloc[:index][symbol]['Low'], close=multiple_data_frame.iloc[:index][symbol]['Close'], length=10, multiplier=3)
-        if multiple_data_frame.iloc[index][symbol]['Low'] > super_trend[-1] and multiple_data_frame.iloc[index-1][symbol]['Close'] < super_trend[-2]:
+        if multiple_data_frame.iloc[index][symbol]['Low'] > super_trend.iloc[-1] and multiple_data_frame.iloc[index-1][symbol]['Close'] < super_trend.iloc[-2]:
             wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)           
         
         # Take Exit
