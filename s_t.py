@@ -8,8 +8,8 @@ import pandas_ta as ta
 
 
 # Screener Constants
-fixed_target = 60           # 60 %
-fixed_stoploss = 30         # 30 %
+fixed_target = 30           # 30 %
+fixed_stoploss = 20         # 20 %
 number_of_position = 10     # Infinite or fixed
 wallet = 100000             # Wallet Balance
 max_entry_amount = 100000   # Max entry Amount
@@ -17,9 +17,9 @@ entry_amount = 10000        # per entry
 increase_percent = 5        # When profit is greater then 10% then only entry amount increased by 5%
 fixed_entry_amount_flag = False
 fixed_target_flag = True
-indicator_exit = False
+indicator_exit = True
 
-file_name = 'V2_n'
+file_name = 'V1_n'
 symbol_list_unfiltered = ns.get_nifty50_with_ns()
 
 
@@ -211,13 +211,13 @@ min_portfolio_change = 0
 
 for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
     for symbol in symbol_list:
-        if index < 100:
+        if index < 101:
             break
         if len(active_entry) > number_of_entry_at_a_time:
             number_of_entry_at_a_time = len(active_entry)
 
         # Take Entry
-        super_trend = SUPER_TREND(high=multiple_data_frame.iloc[index-52:index][symbol]['High'], low=multiple_data_frame.iloc[index-52:index][symbol]['Low'], close=multiple_data_frame.iloc[index-52:index][symbol]['Close'], length=10, multiplier=3)
+        super_trend = SUPER_TREND(high=multiple_data_frame.iloc[index-100:index][symbol]['High'], low=multiple_data_frame.iloc[index-100:index][symbol]['Low'], close=multiple_data_frame.iloc[index-100:index][symbol]['Close'], length=10, multiplier=3)
         if not active_entry.get(symbol) and len(active_entry) < number_of_position and multiple_data_frame.iloc[index][symbol]['Low'] > super_trend.iloc[-1] and multiple_data_frame.iloc[index-1][symbol]['Close'] < super_trend.iloc[-2]:
             wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
           
