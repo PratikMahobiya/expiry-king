@@ -26,7 +26,7 @@ exclude_symbol = ['MAHINDCIE.NS', 'ORIENTREF.NS', 'PVR.NS', 'WABCOINDIA.NS', 'SR
 
 symbol_list = [symbol for symbol in symbol_list_unfiltered if symbol not in exclude_symbol]
 
-multiple_data_frame = yf.download(symbol_list, interval="1d", start='1999-04-01', end='2024-03-31', group_by='ticker', rounding=True)
+multiple_data_frame = yf.download(symbol_list, interval="1d", start='2013-04-01', end='2024-03-31', group_by='ticker', rounding=True)
 
 def SUPER_TREND(high, low, close, length, multiplier):
     return ta.supertrend(high=high,
@@ -193,18 +193,13 @@ min_portfolio_change = 0
 
 for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
     for symbol in symbol_list:
-        if index < 52:
+        if index < 100:
             break
         if len(active_entry) > number_of_entry_at_a_time:
             number_of_entry_at_a_time = len(active_entry)
 
-        # Take Entry
-        super_trend = SUPER_TREND(high=multiple_data_frame.iloc[:index][symbol]['High'], low=multiple_data_frame.iloc[:index][symbol]['Low'], close=multiple_data_frame.iloc[:index][symbol]['Close'], length=10, multiplier=3)
-        if multiple_data_frame.iloc[index][symbol]['Low'] > super_trend.iloc[-1] and multiple_data_frame.iloc[index-1][symbol]['Close'] < super_trend.iloc[-2]:
-            wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)           
-        
         # Take Exit
-        elif active_entry.get(symbol) and active_entry.get(symbol).get('buy'):
+        if active_entry.get(symbol) and active_entry.get(symbol).get('buy'):
             high_price_diff = multiple_data_frame.iloc[index][symbol]['High'] - active_entry[symbol]['price']
             high_pnl = round((high_price_diff/active_entry[symbol]['price']) * 100, 2)
             low_price_diff = multiple_data_frame.iloc[index][symbol]['Low'] - active_entry[symbol]['price']
@@ -226,6 +221,13 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
                 active_entry[symbol]['tr_sl'] = True
                 active_entry[symbol]['tr_stoploss'] = multiple_data_frame.iloc[index][symbol]['High'] - multiple_data_frame.iloc[index][symbol]['High'] * 0.05
             wallet, entry_amount, active_entry = Exit(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
+            break
+
+        # Take Entry
+        super_trend = SUPER_TREND(high=multiple_data_frame.iloc[index-100:index][symbol]['High'], low=multiple_data_frame.iloc[index-100:index][symbol]['Low'], close=multiple_data_frame.iloc[index-100:index][symbol]['Close'], length=10, multiplier=3)
+        if multiple_data_frame.iloc[index][symbol]['Low'] > super_trend.iloc[-1] and multiple_data_frame.iloc[index-1][symbol]['Close'] < super_trend.iloc[-2]:
+            wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)           
+        
     
     # Get Portfolio Value change
     change = 0
