@@ -10,14 +10,14 @@ import pandas_ta as ta
 # Screener Constants
 fixed_target = 60           # 60 %
 fixed_stoploss = 30         # 30 %
-number_of_position = 20     # Infinite or fixed
-wallet = 200000             # Wallet Balance
+number_of_position = 10     # Infinite or fixed
+wallet = 100000             # Wallet Balance
 max_entry_amount = 100000   # Max entry Amount
 entry_amount = 10000        # per entry
 increase_percent = 5        # When profit is greater then 10% then only entry amount increased by 5%
 fixed_entry_amount_flag = False
 fixed_target_flag = True
-indicator_exit = True
+indicator_exit = False
 
 file_name = 'V2_n'
 symbol_list_unfiltered = ns.get_nifty50_with_ns()
