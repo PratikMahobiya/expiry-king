@@ -193,12 +193,14 @@ min_portfolio_change = 0
 
 for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
     for symbol in symbol_list:
+        if index < 52:
+            break
         if len(active_entry) > number_of_entry_at_a_time:
             number_of_entry_at_a_time = len(active_entry)
 
         # Take Entry
         super_trend = SUPER_TREND(high=multiple_data_frame.iloc[:index][symbol]['High'], low=multiple_data_frame.iloc[:index][symbol]['Low'], close=multiple_data_frame.iloc[:index][symbol]['Close'], length=10, multiplier=3)
-        if multiple_data_frame.iloc[index][symbol]['Low'].iloc[-1] > super_trend[-1] and multiple_data_frame.iloc[index][symbol]['Close'].iloc[-2] < super_trend[-2]:
+        if multiple_data_frame.iloc[index][symbol]['Low'] > super_trend[-1] and multiple_data_frame.iloc[index-1][symbol]['Close'] < super_trend[-2]:
             wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)           
         
         # Take Exit
