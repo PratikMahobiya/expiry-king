@@ -6,18 +6,6 @@ from tqdm import tqdm
 from datetime import datetime, timedelta
 
 
-def convert_to_ist(timestamp_ms):
-    # Convert milliseconds to seconds
-    timestamp_s = timestamp_ms / 1000
-    # Convert to datetime object in UTC
-    dt_utc = pd.to_datetime(timestamp_s, unit='s', utc=True)
-    # IST offset
-    ist_offset = timedelta(hours=5, minutes=30)
-    # Convert to IST
-    dt_ist = dt_utc + ist_offset
-    return dt_ist
-
-
 # Screener Constants
 fixed_target = 60           # 60 %
 fixed_stoploss = 30         # 30 %
@@ -31,13 +19,30 @@ fixed_target_flag = False
 
 file_name = 'V9'
 
-def Get_Candle(interval, from_date, to_date):
+def convert_to_ist(timestamp_ms):
+    # Convert milliseconds to seconds
+    timestamp_s = timestamp_ms / 1000
+    # Convert to datetime object in UTC
+    dt_utc = pd.to_datetime(timestamp_s, unit='s', utc=True)
+    # IST offset
+    ist_offset = timedelta(hours=5, minutes=30)
+    # Convert to IST
+    dt_ist = dt_utc + ist_offset
+    return dt_ist
+
+def Get_Candle(collection, interval, from_date, to_date):
     try:
-        url = "https://api.coindcx.com/exchange/v1/derivatives/futures/data/active_instruments"
+        # url = "https://api.coindcx.com/exchange/v1/derivatives/futures/data/active_instruments"
 
-        response = requests.get(url)
-        data = response.json()
+        # response = requests.get(url)
+        # data = response.json()
+        crypto_all = ['B-CTSI_USDT', 'B-LPT_USDT', 'B-RLC_USDT', 'B-MKR_USDT', 'B-ENS_USDT', 'B-BTC_USDT', 'B-PEOPLE_USDT', 'B-ROSE_USDT', 'B-DUSK_USDT', 'B-FLOW_USDT', 'B-IMX_USDT', 'B-API3_USDT', 'B-GMT_USDT', 'B-APE_USDT', 'B-WOO_USDT', 'B-JASMY_USDT', 'B-DAR_USDT', 'B-OP_USDT', 'B-INJ_USDT', 'B-SPELL_USDT', 'B-LDO_USDT', 'B-ICP_USDT', 'B-APT_USDT', 'B-QNT_USDT', 'B-FXS_USDT', 'B-MAGIC_USDT', 'B-T_USDT', 'B-HIGH_USDT', 'B-MINA_USDT', 'B-ASTR_USDT', 'B-PHB_USDT', 'B-GMX_USDT', 'B-CFX_USDT', 'B-STX_USDT', 'B-BNX_USDT', 'B-ACH_USDT', 'B-CKB_USDT', 'B-PERP_USDT', 'B-TRU_USDT', 'B-LQTY_USDT', 'B-ARB_USDT', 'B-JOE_USDT', 'B-TLM_USDT', 'B-AMB_USDT', 'B-LEVER_USDT', 'B-HFT_USDT', 'B-XVS_USDT', 'B-BICO_USDT', 'B-LOOM_USDT', 'B-BOND_USDT', 'B-WAXP_USDT', 'B-RIF_USDT', 'B-POLYX_USDT', 'B-GAS_USDT', 'B-POWR_USDT', 'B-CAKE_USDT', 'B-TWT_USDT', 'B-BADGER_USDT', 'B-CHESS_USDT', 'B-SSV_USDT', 'B-ILV_USDT', 'B-ETH_USDT', 'B-BCH_USDT', 'B-XRP_USDT', 'B-EOS_USDT', 'B-LTC_USDT', 'B-ETC_USDT', 'B-LINK_USDT', 'B-TRX_USDT', 'B-XLM_USDT', 'B-ADA_USDT', 'B-DASH_USDT', 'B-ZEC_USDT', 'B-XTZ_USDT', 'B-BNB_USDT', 'B-ATOM_USDT', 'B-ONT_USDT', 'B-IOTA_USDT', 'B-BAT_USDT', 'B-VET_USDT', 'B-NEO_USDT', 'B-QTUM_USDT', 'B-IOST_USDT', 'B-THETA_USDT', 'B-ALGO_USDT', 'B-ZIL_USDT', 'B-KNC_USDT', 'B-ZRX_USDT', 'B-COMP_USDT', 'B-OMG_USDT', 'B-DOGE_USDT', 'B-SXP_USDT', 'B-KAVA_USDT', 'B-BAND_USDT', 'B-SNX_USDT', 'B-DOT_USDT', 'B-YFI_USDT', 'B-BAL_USDT', 'B-CRV_USDT', 'B-TRB_USDT', 'B-RUNE_USDT', 'B-SUSHI_USDT', 'B-EGLD_USDT', 'B-SOL_USDT', 'B-ICX_USDT', 'B-STORJ_USDT', 'B-BLZ_USDT', 'B-UNI_USDT', 'B-AVAX_USDT', 'B-FTM_USDT', 'B-ENJ_USDT', 'B-FLM_USDT', 'B-REN_USDT', 'B-KSM_USDT', 'B-NEAR_USDT', 'B-AAVE_USDT', 'B-FIL_USDT', 'B-LRC_USDT', 'B-MATIC_USDT', 'B-BEL_USDT', 'B-AXS_USDT', 'B-ALPHA_USDT', 'B-ZEN_USDT', 'B-SKL_USDT', 'B-GRT_USDT', 'B-1INCH_USDT', 'B-CHZ_USDT', 'B-SAND_USDT', 'B-ANKR_USDT', 'B-LIT_USDT', 'B-UNFI_USDT', 'B-REEF_USDT', 'B-RVN_USDT', 'B-SFP_USDT', 'B-XEM_USDT', 'B-COTI_USDT', 'B-STMX_USDT', 'B-CELR_USDT', 'B-HOT_USDT', 'B-MTL_USDT', 'B-OGN_USDT', 'B-NKN_USDT', 'B-BAKE_USDT', 'B-GTC_USDT', 'B-IOTX_USDT', 'B-C98_USDT', 'B-MASK_USDT', 'B-ATA_USDT', 'B-DYDX_USDT', 'B-GALA_USDT', 'B-CELO_USDT', 'B-AR_USDT', 'B-ARPA_USDT', 'B-YGG_USDT', 'B-BNT_USDT', 'B-OXT_USDT', 'B-CHR_USDT', 'B-SUPER_USDT', 'B-USTC_USDT', 'B-ONG_USDT', 'B-AUCTION_USDT', 'B-MOVR_USDT', 'B-LSK_USDT', 'B-OM_USDT', 'B-GLM_USDT', 'B-RARE_USDT', 'B-SYN_USDT', 'B-SYS_USDT', 'B-NULS_USDT', 'B-MANA_USDT', 'B-ALICE_USDT', 'B-HBAR_USDT', 'B-DENT_USDT', 'B-ONE_USDT', 'B-LINA_USDT', 'B-KLAY_USDT', 'B-UMA_USDT', 'B-KEY_USDT', 'B-VIDT_USDT', 'B-MBOX_USDT', 'B-NMR_USDT', 'B-HIFI_USDT', 'B-ALPACA_USDT', 'B-SUN_USDT']
 
+        crypto_100 = ['B-LPT_USDT', 'B-MKR_USDT', 'B-ENS_USDT', 'B-BTC_USDT', 'B-FLOW_USDT', 'B-API3_USDT', 'B-APE_USDT', 'B-JASMY_USDT', 'B-OP_USDT', 'B-INJ_USDT', 'B-LDO_USDT', 'B-APT_USDT', 'B-MINA_USDT', 'B-CFX_USDT', 'B-STX_USDT', 'B-ACH_USDT', 'B-LQTY_USDT', 'B-ARB_USDT', 'B-JOE_USDT', 'B-LEVER_USDT', 'B-ETH_USDT', 'B-BCH_USDT', 'B-XRP_USDT', 'B-EOS_USDT', 'B-LTC_USDT', 'B-ETC_USDT', 'B-LINK_USDT', 'B-TRX_USDT', 'B-XLM_USDT', 'B-ADA_USDT', 'B-XTZ_USDT', 'B-BNB_USDT', 'B-ATOM_USDT', 'B-QTUM_USDT', 'B-KNC_USDT', 'B-DOGE_USDT', 'B-SXP_USDT', 'B-BAND_USDT', 'B-SNX_USDT', 'B-DOT_USDT', 'B-YFI_USDT', 'B-CRV_USDT', 'B-TRB_USDT', 'B-RUNE_USDT', 'B-SOL_USDT', 'B-ICX_USDT', 'B-STORJ_USDT', 'B-BLZ_USDT', 'B-UNI_USDT', 'B-AVAX_USDT', 'B-FTM_USDT', 'B-FLM_USDT', 'B-NEAR_USDT', 'B-AAVE_USDT', 'B-FIL_USDT', 'B-LRC_USDT', 'B-MATIC_USDT', 'B-BEL_USDT', 'B-1INCH_USDT', 'B-CHZ_USDT', 'B-SAND_USDT', 'B-ANKR_USDT', 'B-UNFI_USDT', 'B-SFP_USDT', 'B-STMX_USDT', 'B-MTL_USDT', 'B-OGN_USDT', 'B-BAKE_USDT', 'B-GTC_USDT', 'B-IOTX_USDT', 'B-C98_USDT', 'B-DYDX_USDT', 'B-GALA_USDT', 'B-CELO_USDT', 'B-ARPA_USDT', 'B-MANA_USDT', 'B-HBAR_USDT', 'B-LINA_USDT', 'B-KLAY_USDT', 'B-KEY_USDT', 'B-NMR_USDT', 'B-ONG_USDT', 'B-AUCTION_USDT', 'B-MOVR_USDT', 'B-LSK_USDT', 'B-OM_USDT', 'B-GLM_USDT', 'B-RARE_USDT', 'B-SYN_USDT', 'B-SYS_USDT', 'B-NULS_USDT', 'B-ALICE_USDT', 'B-DENT_USDT', 'B-ONE_USDT', 'B-UMA_USDT', 'B-VIDT_USDT', 'B-MBOX_USDT', 'B-HIFI_USDT', 'B-ALPACA_USDT', 'B-SUN_USDT']
+        
+        data = crypto_100 if collection == '100' else crypto_all
+
+        print("Total symbol: ", len(data))
         symbol = []
         df = []
         for index, pair in enumerate(tqdm(data)):
@@ -51,27 +56,24 @@ def Get_Candle(interval, from_date, to_date):
             }
             response = requests.get(url, params=query_params)
             data = response.json()
-            if len(data) > 364:
-                symbol.append(pair[2:-1].replace('_', '-'))
-                # Apply the conversion to the DataFrame
-                data_frame = pd.DataFrame(data)
-                data_frame['time'] = data_frame['time'].apply(convert_to_ist)
-                data_frame.rename(columns={
-                                'open': 'Open',
-                                'high': 'High',
-                                'low': 'Low',
-                                'close': 'Close',
-                                'volume': 'Volume',
-                                'time': 'Time'}, inplace=True)
-                df.append(data_frame)
+            # if len(data) > 364:
+            symbol.append(pair[2:-1].replace('_', '-'))
+            # Apply the conversion to the DataFrame
+            data_frame = pd.DataFrame(data)
+            data_frame['time'] = data_frame['time'].apply(convert_to_ist)
+            data_frame.rename(columns={
+                            'open': 'Open',
+                            'high': 'High',
+                            'low': 'Low',
+                            'close': 'Close',
+                            'volume': 'Volume',
+                            'time': 'Time'}, inplace=True)
+            df.append(data_frame)
 
-        print(symbol)
         mdf = pd.concat([ i.set_index('Time') for i in df], axis=1, keys=symbol)
     except Exception as e:
         raise Exception(f"Error: {e}")
     return mdf, symbol
-
-multiple_data_frame, symbol_list = Get_Candle(interval='1d', from_date=datetime(2023, 4, 1), to_date=datetime(2024, 3, 31))
 
 def get_change(current, previous):
     if current == previous:
@@ -190,6 +192,8 @@ number_of_entry_at_a_time = 0
 max_portfolio_change = 0
 min_portfolio_change = 0
 
+multiple_data_frame, symbol_list = Get_Candle('100', interval='1d', from_date=datetime(2023, 4, 1), to_date=datetime(2024, 3, 31))
+
 for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
     date_time = date_time.replace(tzinfo=None)
     for symbol in symbol_list:
@@ -198,7 +202,7 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
 
         # Take Entry
         if index > 50 and not active_entry.get(symbol) and len(active_entry) < number_of_position and max(multiple_data_frame[symbol]['High'].iloc[index-50:index]) < multiple_data_frame.iloc[index][symbol]['High']:
-            wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)           
+            wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
 
         # Take Exit
         elif active_entry.get(symbol) and active_entry.get(symbol).get('buy'):
