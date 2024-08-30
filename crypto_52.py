@@ -183,7 +183,7 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
             number_of_entry_at_a_time = len(active_entry)
 
         # Take Entry
-        if index > 52 and not active_entry.get(symbol) and len(active_entry) < number_of_position and max(multiple_data_frame[symbol]['High'].iloc[index-52:index]) < multiple_data_frame.iloc[index][symbol]['High']:
+        if index > 50 and not active_entry.get(symbol) and len(active_entry) < number_of_position and max(multiple_data_frame[symbol]['High'].iloc[index-50:index]) < multiple_data_frame.iloc[index][symbol]['High']:
             wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)           
         
         # Take Exit
