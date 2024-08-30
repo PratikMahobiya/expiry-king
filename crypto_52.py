@@ -59,7 +59,7 @@ def Get_Candle(collection, interval, from_date, to_date):
             # if len(data) > 364:
             symbol.append(pair[2:-1].replace('_', '-'))
             # Apply the conversion to the DataFrame
-            data_frame = pd.DataFrame(data)
+            data_frame = pd.DataFrame(data[::-1])
             data_frame['time'] = data_frame['time'].apply(convert_to_ist)
             data_frame.rename(columns={
                             'open': 'Open',
