@@ -51,7 +51,7 @@ def Get_Candle(interval, from_date, to_date):
             }
             response = requests.get(url, params=query_params)
             data = response.json()
-            if len(data) == 730:
+            if len(data) > 364:
                 symbol.append(pair[2:-1].replace('_', '-'))
                 # Apply the conversion to the DataFrame
                 data_frame = pd.DataFrame(data)
@@ -69,9 +69,9 @@ def Get_Candle(interval, from_date, to_date):
         mdf = pd.concat([ i.set_index('Time') for i in df], axis=1, keys=symbol)
     except Exception as e:
         raise Exception(f"Error: {e}")
-    return mdf
+    return mdf, symbol
 
-multiple_data_frame = Get_Candle(interval='1d', from_date=datetime(2023, 4, 1), to_date=datetime(2024, 3, 31))
+multiple_data_frame, symbol_list = Get_Candle(interval='1d', from_date=datetime(2023, 4, 1), to_date=datetime(2024, 3, 31))
 
 def get_change(current, previous):
     if current == previous:
