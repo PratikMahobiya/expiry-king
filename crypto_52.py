@@ -17,7 +17,7 @@ increase_percent = 5        # When profit is greater then 10% then only entry am
 fixed_entry_amount_flag = False
 fixed_target_flag = False
 
-file_name = 'V9'
+file_name = 'V8'
 
 def convert_to_ist(timestamp_ms):
     # Convert milliseconds to seconds
@@ -213,19 +213,20 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
             close_price_diff = multiple_data_frame.iloc[index][symbol]['Close'] - active_entry[symbol]['price']
             close_pnl = (close_price_diff/active_entry[symbol]['price']) * 100
             active_entry[symbol]['change_in_investment'] = close_pnl
-
+            
+            if high_pnl < fixed_target and multiple_data_frame.iloc[index][symbol]['Low'] > active_entry[symbol]['fixed_stoploss']:
+                active_entry[symbol]['tr_sl'] = True
+                active_entry[symbol]['tr_stoploss'] = min(multiple_data_frame[symbol]['Low'].iloc[index-10:index])
+            elif high_pnl > fixed_target and high_pnl > active_entry[symbol]['max_high']:
+                active_entry[symbol]['tr_sl'] = True
+                active_entry[symbol]['tr_stoploss'] = multiple_data_frame.iloc[index][symbol]['High'] - multiple_data_frame.iloc[index][symbol]['High'] * 0.05
+            
             if high_pnl > active_entry[symbol]['max_high']:
                 active_entry[symbol]['max_high'] = high_pnl
             
             if low_pnl < active_entry[symbol]['max_low']:
                 active_entry[symbol]['max_low'] = low_pnl
-            
-            if high_pnl < fixed_target and multiple_data_frame.iloc[index][symbol]['Low'] > active_entry[symbol]['fixed_stoploss']:
-                active_entry[symbol]['tr_sl'] = True
-                active_entry[symbol]['tr_stoploss'] = min(multiple_data_frame[symbol]['Low'].iloc[index-10:index])
-            elif high_pnl > fixed_target:
-                active_entry[symbol]['tr_sl'] = True
-                active_entry[symbol]['tr_stoploss'] = multiple_data_frame.iloc[index][symbol]['High'] - multiple_data_frame.iloc[index][symbol]['High'] * 0.05
+
             wallet, entry_amount, active_entry = Exit(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
     
     # Get Portfolio Value change
