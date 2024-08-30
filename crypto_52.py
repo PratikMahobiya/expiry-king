@@ -2,9 +2,20 @@ import csv
 import openpyxl
 import requests
 import pandas as pd
-import yfinance as yf
 from tqdm import tqdm
 from datetime import datetime, timedelta
+
+
+def convert_to_ist(timestamp_ms):
+    # Convert milliseconds to seconds
+    timestamp_s = timestamp_ms / 1000
+    # Convert to datetime object in UTC
+    dt_utc = pd.to_datetime(timestamp_s, unit='s', utc=True)
+    # IST offset
+    ist_offset = timedelta(hours=5, minutes=30)
+    # Convert to IST
+    dt_ist = dt_utc + ist_offset
+    return dt_ist
 
 
 # Screener Constants
@@ -20,44 +31,47 @@ fixed_target_flag = False
 
 file_name = 'V9'
 
-def Future_active_instrument_list():
+def Get_Candle(interval, from_date, to_date):
     try:
-        # data = ['B-JASMY_USDT', 'B-STG_USDT', 'B-LUNA2_USDT', 'B-HBAR_USDT', 'B-AXS_USDT', 'B-NEAR_USDT', 'B-PORTAL_USDT', 'B-PEOPLE_USDT', 'B-TOKEN_USDT', 'B-CKB_USDT', 'B-CAKE_USDT']
         url = "https://api.coindcx.com/exchange/v1/derivatives/futures/data/active_instruments"
 
         response = requests.get(url)
         data = response.json()
 
-        now = datetime.now()
-        from_day = now - timedelta(days=1000)
         symbol = []
+        df = []
         for index, pair in enumerate(tqdm(data)):
-            url = "https://public.coindcx.com/market_data/candlesticks"
+            url = "https://public.coindcx.com/market_data/candles"
             query_params = {
+                "interval": interval,
                 "pair": pair,
-                "from": int(from_day.timestamp()),
-                "to": int(now.timestamp()),
-                "resolution": "1D",
-                "pcode": "f"
+                "startTime": from_date.timestamp() * 1000,
+                "endTime": to_date.timestamp() * 1000,
+                "limit": 1000
             }
             response = requests.get(url, params=query_params)
             data = response.json()
-            if len(data['data']) > 400:
+            if len(data) == 730:
                 symbol.append(pair[2:-1].replace('_', '-'))
+                # Apply the conversion to the DataFrame
+                data_frame = pd.DataFrame(data)
+                data_frame['time'] = data_frame['time'].apply(convert_to_ist)
+                data_frame.rename(columns={
+                                'open': 'Open',
+                                'high': 'High',
+                                'low': 'Low',
+                                'close': 'Close',
+                                'volume': 'Volume',
+                                'time': 'Time'}, inplace=True)
+                df.append(data_frame)
 
+        print(symbol)
+        mdf = pd.concat([ i.set_index('Time') for i in df], axis=1, keys=symbol)
     except Exception as e:
         raise Exception(f"Error: {e}")
-    return symbol
+    return mdf
 
-
-# symbol_list = Future_active_instrument_list()
-symbol_list_unfiltered = ['LPT-USD', 'MKR-USD', 'ENS-USD', 'BTC-USD', 'FLOW-USD', 'API3-USD', 'APE-USD', 'JASMY-USD', 'OP-USD', 'INJ-USD', 'LDO-USD', 'APT-USD', 'MINA-USD', 'CFX-USD', 'STX-USD', 'ACH-USD', 'LQTY-USD', 'USDC-USD', 'ARB-USD', 'JOE-USD', 'LEVER-USD', 'BLUR-USD', 'SUI-USD', 'ETH-USD', 'BCH-USD', 'XRP-USD', 'EOS-USD', 'LTC-USD', 'ETC-USD', 'LINK-USD', 'TRX-USD', 'XLM-USD', 'ADA-USD', 'WLD-USD', 'XTZ-USD', 'BNB-USD', 'ATOM-USD', 'QTUM-USD', 'KNC-USD', 'DOGE-USD', 'SXP-USD', 'BAND-USD', 'SNX-USD', 'DOT-USD', 'YFI-USD', 'CRV-USD', 'TRB-USD', 'RUNE-USD', 'SOL-USD', 'ICX-USD', 'STORJ-USD', 'BLZ-USD', 'UNI-USD', 'AVAX-USD', 'FTM-USD', 'FLM-USD', 'NEAR-USD', 'AAVE-USD', 'FIL-USD', 'LRC-USD', 'MATIC-USD', 'BEL-USD', '1INCH-USD', 'CHZ-USD', 'SAND-USD', 'ANKR-USD', 'UNFI-USD', 'SFP-USD', 'STMX-USD', 'MTL-USD', 'OGN-USD', 'BAKE-USD', 'GTC-USD', 'IOTX-USD', 'C98-USD', 'DYDX-USD', 'GALA-USD', 'CELO-USD', 'ARPA-USD', 'MANA-USD', 'HBAR-USD', 'LINA-USD', 'KLAY-USD', 'KEY-USD', 'XVG-USD', 'NMR-USD']
-
-exclude_symbol = ['MAGIC-USD', 'GRT-USD', 'COMP-USD', 'EDU-USD', 'GMT-USD', 'IMX-USD', 'MASK-USD', '1000SHIB-USD', '1000PEPE-USD']
-
-symbol_list = [symbol for symbol in symbol_list_unfiltered if symbol not in exclude_symbol]
-
-multiple_data_frame = yf.download(symbol_list, interval="1d", start='2023-04-01', end='2024-03-31', group_by='ticker', rounding=True)
+multiple_data_frame = Get_Candle(interval='1d', from_date=datetime(2023, 4, 1), to_date=datetime(2024, 3, 31))
 
 def get_change(current, previous):
     if current == previous:
