@@ -12,13 +12,13 @@ fixed_target = 60           # 60 %
 fixed_stoploss = 30         # 30 %
 number_of_position = 10     # Infinite or fixed
 wallet = 10000             # Wallet Balance
-max_entry_amount = 10000   # Max entry Amount
+max_entry_amount = 100000   # Max entry Amount
 entry_amount = 1000        # per entry
 increase_percent = 5        # When profit is greater then 10% then only entry amount increased by 5%
 fixed_entry_amount_flag = False
-fixed_target_flag = True
+fixed_target_flag = False
 
-file_name = 'V4'
+file_name = 'V9'
 
 def Future_active_instrument_list():
     try:
@@ -185,7 +185,7 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
         # Take Entry
         if index > 50 and not active_entry.get(symbol) and len(active_entry) < number_of_position and max(multiple_data_frame[symbol]['High'].iloc[index-50:index]) < multiple_data_frame.iloc[index][symbol]['High']:
             wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)           
-        
+
         # Take Exit
         elif active_entry.get(symbol) and active_entry.get(symbol).get('buy'):
             high_price_diff = multiple_data_frame.iloc[index][symbol]['High'] - active_entry[symbol]['price']
