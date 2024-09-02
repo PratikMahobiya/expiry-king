@@ -46,16 +46,25 @@ def Get_Candle(collection, interval, from_date, to_date):
         symbol = []
         df = []
         for index, pair in enumerate(tqdm(data)):
-            url = "https://public.coindcx.com/market_data/candles"
+            # url = "https://public.coindcx.com/market_data/candles"
+            # query_params = {
+            #     "interval": interval,
+            #     "pair": pair,
+            #     "startTime": from_date.timestamp() * 1000,
+            #     "endTime": to_date.timestamp() * 1000,
+            #     "limit": 1000
+            # }
+            url = "https://public.coindcx.com/market_data/candlesticks"
             query_params = {
-                "interval": interval,
                 "pair": pair,
-                "startTime": from_date.timestamp() * 1000,
-                "endTime": to_date.timestamp() * 1000,
-                "limit": 1000
+                "from": from_date.timestamp(),
+                "to": to_date.timestamp(),
+                "resolution": interval,  # '1' OR '5' OR '60' OR '1D'
+                "pcode": "f"
             }
             response = requests.get(url, params=query_params)
             data = response.json()
+            data = data['data']
             # if len(data) > 364:
             symbol.append(pair[2:-1].replace('_', '-'))
             # Apply the conversion to the DataFrame
@@ -192,7 +201,7 @@ number_of_entry_at_a_time = 0
 max_portfolio_change = 0
 min_portfolio_change = 0
 
-multiple_data_frame, symbol_list = Get_Candle('100', interval='1d', from_date=datetime(2023, 4, 1), to_date=datetime(2024, 3, 31))
+multiple_data_frame, symbol_list = Get_Candle('100', interval='5', from_date=datetime(2024, 3, 28), to_date=datetime(2024, 3, 31))
 
 for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
     date_time = date_time.replace(tzinfo=None)
