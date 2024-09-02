@@ -17,7 +17,7 @@ increase_percent = 5        # When profit is greater then 10% then only entry am
 fixed_entry_amount_flag = False
 fixed_target_flag = False
 
-file_name = 'V8'
+file_name = 'V7'
 
 def convert_to_ist(timestamp_ms):
     # Convert milliseconds to seconds
@@ -201,7 +201,7 @@ number_of_entry_at_a_time = 0
 max_portfolio_change = 0
 min_portfolio_change = 0
 
-multiple_data_frame, symbol_list = Get_Candle('100', interval='5', from_date=datetime(2024, 3, 28), to_date=datetime(2024, 3, 31))
+multiple_data_frame, symbol_list = Get_Candle('100', interval='1d', from_date=datetime(2023, 4, 1), to_date=datetime(2024, 3, 31))
 
 for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
     date_time = date_time.replace(tzinfo=None)
@@ -210,7 +210,7 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
             number_of_entry_at_a_time = len(active_entry)
 
         # Take Entry
-        if index > 50 and not active_entry.get(symbol) and len(active_entry) < number_of_position and max(multiple_data_frame[symbol]['High'].iloc[index-50:index]) < multiple_data_frame.iloc[index][symbol]['High']:
+        if index > 30 and not active_entry.get(symbol) and len(active_entry) < number_of_position and max(multiple_data_frame[symbol]['High'].iloc[index-30:index]) < multiple_data_frame.iloc[index][symbol]['High']:
             wallet, entry_amount, active_entry = Entry(date_time, multiple_data_frame.iloc[index][symbol], symbol, active_entry, wallet, entry_amount, sheet_data)
 
         # Take Exit
