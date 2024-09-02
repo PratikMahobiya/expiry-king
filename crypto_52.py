@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 
 # Screener Constants
-fixed_target = 60           # 60 %
+fixed_target = 40           # 60 %
 fixed_stoploss = 30         # 30 %
 number_of_position = 10     # Infinite or fixed
 wallet = 10000             # Wallet Balance
@@ -17,7 +17,7 @@ increase_percent = 5        # When profit is greater then 10% then only entry am
 fixed_entry_amount_flag = False
 fixed_target_flag = False
 
-file_name = 'V7'
+file_name = 'V8'
 
 def convert_to_ist(timestamp_ms):
     # Convert milliseconds to seconds
@@ -139,8 +139,9 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         wallet = wallet + gained_amount
         if not fixed_entry_amount_flag:
             if pnl > 10 and entry_amount <= max_entry_amount:
-                if wallet > (entry_amount + entry_amount * increase_percent/100)*3:
-                    entry_amount = entry_amount + entry_amount * increase_percent/100
+                new_entry_amt = entry_amount + gained_amount * increase_percent/100
+                if wallet > new_entry_amt*3:
+                    entry_amount = new_entry_amt
 
         sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Target', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount, actual_amount, len(active_entry) - 1, wallet, entry_amount]
         sheet_data.append(sht_data)
@@ -156,8 +157,9 @@ def Exit(date_time, data_frame, symbol, active_entry, wallet, entry_amount, shee
         wallet = wallet + gained_amount
         if not fixed_entry_amount_flag:
             if pnl > 10 and entry_amount <= max_entry_amount:
-                if wallet > (entry_amount + entry_amount * increase_percent/100)*3:
-                    entry_amount = entry_amount + entry_amount * increase_percent/100
+                new_entry_amt = entry_amount + gained_amount * increase_percent/100
+                if wallet > new_entry_amt*3:
+                    entry_amount = new_entry_amt
 
         sht_data = [date_time.year, date_time.month, date_time, symbol, 'Exit', 'Tr-Sl', sell_price, active_entry[symbol]['fixed_target'], active_entry[symbol]['fixed_stoploss'], active_entry[symbol]['tr_stoploss'], price_diff, pnl, active_entry[symbol]['max_high'], active_entry[symbol]['max_low'], days, active_entry[symbol]['shares'], active_entry[symbol]['invested_amount'], gained_amount, actual_amount, len(active_entry) - 1, wallet, entry_amount]
         sheet_data.append(sht_data)
@@ -228,7 +230,7 @@ for index, date_time in enumerate(tqdm(multiple_data_frame.index)):
                 active_entry[symbol]['tr_stoploss'] = min(multiple_data_frame[symbol]['Low'].iloc[index-10:index])
             elif high_pnl > fixed_target and high_pnl > active_entry[symbol]['max_high']:
                 active_entry[symbol]['tr_sl'] = True
-                active_entry[symbol]['tr_stoploss'] = multiple_data_frame.iloc[index][symbol]['High'] - multiple_data_frame.iloc[index][symbol]['High'] * 0.05
+                active_entry[symbol]['tr_stoploss'] = multiple_data_frame.iloc[index][symbol]['High'] - multiple_data_frame.iloc[index][symbol]['High'] * 0.1
             
             if high_pnl > active_entry[symbol]['max_high']:
                 active_entry[symbol]['max_high'] = high_pnl
